@@ -1,0 +1,80 @@
+package user
+
+import (
+	"context"
+	"crypto/ed25519"
+	"crypto/sha256"
+	b64 "encoding/base64"
+	"errors"
+	"fmt"
+	"time"
+
+	"512b.it/daytrack/src/database"
+	"512b.it/daytrack/src/models"
+	"512b.it/daytrack/src/utils"
+)
+
+var ErrorOpaqueChallengeVerificationFailed error = errors.New("opaque challenge verification failed")
+
+type Service struct {
+	db            *database.Database
+	configuration models.Configuration
+	logger        utils.ContextLogger
+}
+
+func New(db *database.Database, configuration models.Configuration) *Service {
+	logger := utils.InitServiceLogger("UserService")
+
+	return &Service{
+		db:            db,
+		configuration: configuration,
+		logger:        logger,
+	}
+}
+
+func (s *Service) GenerateSalt(ctx context.Context, saltNonce, email string) string {
+	h := sha256.New()
+	h.Write([]byte(email + saltNonce))
+
+	return b64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+
+func (s *Service) CreateUser(ctx context.Context, username, email, password string) (int, error) {
+	salt := s.GenerateSalt(context.Background(), s.configuration.Opaque.SaltNonce, email)
+
+	id, err := s.db.InsertUser(username, email, password, salt)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChallenge string) (*models.Token, error) {
+	user, err := s.db.GetUserByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+
+	publicKey, err := b64.StdEncoding.DecodeString(user.Password)
+
+	if err != nil {
+		utils.FakeOpaqueOperation()
+		return nil, err
+	}
+
+	if !ed25519.Verify(ed25519.PublicKey(publicKey), []byte(challenge), []byte(signedChallenge)) {
+		return nil, ErrorOpaqueChallengeVerificationFailed
+	}
+
+	var token string
+	if token, err = models.GenerateAccessJWT(s.configuration.JWT.PrivateKey, time.Duration(s.configuration.JWT.AccessTokenDuration), fmt.Sprintf("%d", user.ID)); err != nil {
+		utils.FakeOpaqueOperation()
+		return nil, err
+	}
+
+	return &models.Token{
+		Token:   token,
+		ExpDate: time.Now().Add(time.Duration(s.configuration.JWT.AccessTokenDuration)),
+	}, nil
+}
