@@ -10,9 +10,16 @@ import (
 	"512b.it/daytrack/src/models"
 	user_utils "512b.it/daytrack/src/utils"
 	"512b.it/daytrack/tests/utils"
+	faker "512b.it/daytrack/tests/utils"
 )
 
 const BASE_URL = "http://localhost:3000"
+
+type SignedUser struct {
+	models.User
+	Password string
+	Token    string
+}
 
 func GenerateChallenge(email string) (*models.Challenge, error) {
 	var err error
@@ -49,7 +56,6 @@ func SignUp(username, email, password string) error {
 		return err
 	}
 
-	print("public key", base64.StdEncoding.EncodeToString(publicKey))
 	if err = utils.DoRequest(
 		url,
 		utils.WithRequestMethod(http.MethodPost),
@@ -103,4 +109,31 @@ func SignIn(email, password string) (*models.Token, error) {
 	}
 
 	return &response, nil
+}
+
+func CreateUser() (*SignedUser, error) {
+	var err error
+	var token *models.Token
+	username := faker.Faker.Username()
+	email := faker.Faker.Email()
+	password := faker.Faker.Password()
+
+	if err = SignUp(username, email, password); err != nil {
+		return nil, err
+	}
+
+	if token, err = SignIn(email, password); err != nil {
+		return nil, err
+	}
+
+	signedUser := SignedUser{
+		models.User{
+			Username: username,
+			Email:    email,
+		},
+		password,
+		token.Token,
+	}
+
+	return &signedUser, nil
 }
