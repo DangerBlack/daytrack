@@ -33,7 +33,7 @@ func (d *Database) GetAPIKey(key string) (*models.ApiKey, error) {
 		WHERE
 			key = ?
 			AND delete_at IS NULL;
-	`, key).Scan(&apiKey.ID, &apiKey.UserID, apiKey.CreatedAt)
+	`, key).Scan(&apiKey.ID, &apiKey.UserID, &apiKey.CreatedAt)
 
 	if err != nil {
 		return nil, err

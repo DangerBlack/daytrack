@@ -44,6 +44,30 @@ func (d *Database) GetTrackByID(id int64) (*models.Track, error) {
 	return &track, nil
 }
 
+func (d *Database) GetTrackByUserIDAndName(userID int64, trackName string) (*models.Track, error) {
+	track := models.Track{
+		UserID: userID,
+		Name:   trackName,
+	}
+
+	err := d.db.QueryRow(`
+		SELECT
+			description,
+			visibility,
+			status,
+			created_at,
+			delete_at
+		FROM tracks
+		WHERE user_id = ? and name = ?;
+	`, userID, trackName).Scan(&track.Description, &track.Visibility, &track.Status, &track.CreatedAt, &track.DeleteAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &track, nil
+}
+
 func (d *Database) ListTracks(userID int64) ([]models.Track, error) {
 	rows, err := d.db.Query(`
 		SELECT

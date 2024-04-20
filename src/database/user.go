@@ -64,3 +64,25 @@ func (d *Database) GetUserByEmail(email string) (*models.User, error) {
 
 	return &user, nil
 }
+
+func (d *Database) GetUserByName(username string) (*models.User, error) {
+	user := models.User{
+		Username: username,
+	}
+
+	err := d.db.QueryRow(`
+		SELECT
+			id,
+			email,
+			public_key,
+			salt
+		FROM users
+		WHERE email = ?;
+	`, username).Scan(&user.ID, &user.Email, &user.PublicKey, &user.Salt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

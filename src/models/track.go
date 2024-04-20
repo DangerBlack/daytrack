@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type TrackVisibility string
 type TrackStatus string
 
@@ -20,5 +22,5 @@ type Track struct {
 	Visibility  TrackVisibility `json:"visibility"`
 	Status      TrackStatus     `json:"status"`
 	CreatedAt   string          `json:"created_at"`
-	DeleteAt    string          `json:"delete_at"`
+	DeleteAt    *time.Time      `json:"delete_at"`
 }

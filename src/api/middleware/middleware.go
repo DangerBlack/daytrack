@@ -1,9 +1,11 @@
-package api
+package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
+	"512b.it/daytrack/src/database"
 	"512b.it/daytrack/src/models"
 	"512b.it/daytrack/src/utils"
 	"github.com/gin-gonic/gin"
@@ -59,6 +61,40 @@ func AuthUserGuards(configuration models.Configuration) gin.HandlerFunc {
 			return
 		}
 
+		ctx.Next()
+	}
+}
+
+func AuthApiKeyGuards(configuration models.Configuration, db *database.Database) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		requestCtx := ctx.Request.Context()
+
+		var err error
+		var apiKey *models.ApiKey
+		key := ctx.Query("key")
+
+		if apiKey, err = db.GetAPIKey(key); err != nil {
+			utils.Logger(requestCtx).Err(err).Msgf("Unable to get the api key")
+			ctx.JSON(http.StatusUnauthorized, models.NewError(models.ErrorUnauthorized, ""))
+			ctx.Abort()
+			return
+		}
+
+		if apiKey == nil {
+			utils.Logger(requestCtx).Error().Msgf("Api key not found")
+			ctx.JSON(http.StatusUnauthorized, models.NewError(models.ErrorUnauthorized, ""))
+			ctx.Abort()
+			return
+		}
+
+		if apiKey.DeleteAt != nil {
+			utils.Logger(requestCtx).Error().Msgf("Api key is deleted")
+			ctx.JSON(http.StatusUnauthorized, models.NewError(models.ErrorUnauthorized, ""))
+			ctx.Abort()
+			return
+		}
+
+		ctx.Set(utils.USER_ID_CONTEXT_KEY, fmt.Sprintf("%d", apiKey.UserID))
 		ctx.Next()
 	}
 }
