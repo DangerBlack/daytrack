@@ -1,7 +1,6 @@
 package api_key
 
 import (
-	"strconv"
 	"time"
 
 	"512b.it/daytrack/src/models"
@@ -53,7 +52,7 @@ func (c *ApiKeyController) injectAuthenticatedRoutes() {
 	v1 := c.authenticatedRoute.Group("v1")
 	{
 		v1.POST("/api_keys", c.createApiKeyRoute())
-		//v1.GET("/api_keys", c.getApiKeys)
+		v1.GET("/api_keys", c.listApiKeysRoute())
 	}
 }
 
@@ -61,9 +60,14 @@ func (c *ApiKeyController) createApiKeyRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
 		var key *string
+		var userID int
 
-		userID, _ := strconv.Atoi(ctx.Value(models.USER_ID_CONTEXT_KEY).(string))
 		name := ctx.DefaultQuery("name", "default")
+
+		if userID, err = utils.GetAuthenticatedUserID(ctx); err != nil {
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to get authenticated user id"))
+			return
+		}
 
 		if key, err = c.apiKey.CreateApiKey(userID, name); err != nil {
 			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to create api key"))
@@ -75,6 +79,28 @@ func (c *ApiKeyController) createApiKeyRoute() gin.HandlerFunc {
 			UserID:    userID,
 			Key:       *key,
 			CreatedAt: time.Now(),
+		})
+	}
+}
+
+func (c *ApiKeyController) listApiKeysRoute() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var err error
+		var apiKeys []models.ApiKey
+		var userID int
+
+		if userID, err = utils.GetAuthenticatedUserID(ctx); err != nil {
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to get authenticated user id"))
+			return
+		}
+
+		if apiKeys, err = c.apiKey.ListApiKeys(userID); err != nil {
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list api keys"))
+			return
+		}
+
+		ctx.JSON(200, models.List[models.ApiKey]{
+			Items: apiKeys,
 		})
 	}
 }

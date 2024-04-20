@@ -20,8 +20,6 @@ const (
 	JWTSubjectClaimKey = "sub" // AccountID
 )
 
-const USER_ID_CONTEXT_KEY = "UserID"
-
 func GenerateAccessJWT(
 	key JWTPrivKeyType,
 	exp time.Duration,

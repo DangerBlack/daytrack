@@ -51,7 +51,7 @@ func AuthUserGuards(configuration models.Configuration) gin.HandlerFunc {
 		claims := token.Claims.(jwt.MapClaims)
 
 		if identityID, found := claims[models.JWTSubjectClaimKey]; found {
-			ctx.Set(models.USER_ID_CONTEXT_KEY, identityID)
+			ctx.Set(utils.USER_ID_CONTEXT_KEY, identityID)
 		} else {
 			utils.Logger(requestCtx).Error().Msgf("Jwt token found is not linked to a user")
 			ctx.JSON(http.StatusUnauthorized, models.NewError(models.ErrorUnauthorized, ""))

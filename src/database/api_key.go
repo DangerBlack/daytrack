@@ -42,6 +42,38 @@ func (d *Database) GetAPIKey(key string) (*models.ApiKey, error) {
 	return &apiKey, nil
 }
 
+func (d *Database) ListAPIKeys(userID int) ([]models.ApiKey, error) {
+	rows, err := d.db.Query(`
+		SELECT 
+			id,
+			user_id,
+			name,
+			key,
+			created_at
+		FROM api_keys
+		WHERE
+			user_id = ?
+			AND delete_at IS NULL;
+	`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	apiKeys := make([]models.ApiKey, 0)
+	for rows.Next() {
+		apiKey := models.ApiKey{}
+
+		if err := rows.Scan(&apiKey.ID, &apiKey.UserID, &apiKey.Name, &apiKey.Key, &apiKey.CreatedAt); err != nil {
+			return nil, err
+		}
+
+		apiKeys = append(apiKeys, apiKey)
+	}
+
+	return apiKeys, nil
+}
+
 func (d *Database) DeleteAPIKey(key string) error {
 	_, err := d.db.Exec(`
 		UPDATE api_keys

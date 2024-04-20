@@ -29,3 +29,18 @@ func New(db *database.Database, configuration models.Configuration) *Service {
 func (s *Service) CreateApiKey(userID int, name string) (*string, error) {
 	return s.db.InsertAPIKey(userID, name)
 }
+
+func (s *Service) ListApiKeys(userID int) ([]models.ApiKey, error) {
+	var err error
+	var keys []models.ApiKey
+
+	if keys, err = s.db.ListAPIKeys(userID); err != nil {
+		return nil, err
+	}
+
+	for i, key := range keys {
+		keys[i].Key = key.Key[:3] + "..." + key.Key[len(key.Key)-3:]
+	}
+
+	return keys, nil
+}
