@@ -92,7 +92,7 @@ func (c *UserController) createUserRoute() gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(201, gin.H{"message": "User created"})
+		ctx.JSON(201, gin.H{"message": "user created"})
 	}
 }
 

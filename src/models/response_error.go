@@ -7,12 +7,12 @@ type ErrorResponseModel struct {
 	Details string `json:"details,omitempty" example:"email is invalid"`
 }
 
-func NewError(err error, details *string) ErrorResponseModel {
+func NewError(err error, details string) ErrorResponseModel {
 	e := ErrorResponseModel{
 		Message: err.Error(),
 	}
-	if details != nil {
-		e.Details = *details
+	if details != "" {
+		e.Details = details
 	}
 
 	return e

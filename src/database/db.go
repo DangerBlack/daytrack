@@ -48,6 +48,7 @@ func (d *Database) InitDatabase() {
 		CREATE TABLE IF NOT EXISTS api_keys (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			user_id INTEGER NOT NULL,
+			name TEXT NOT NULL,
 			key TEXT NOT NULL,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			delete_at DATETIME,

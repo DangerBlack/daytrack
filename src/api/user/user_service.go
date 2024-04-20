@@ -81,8 +81,6 @@ func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChalle
 		return nil, err
 	}
 
-	println("token", token)
-
 	return &models.Token{
 		Token:   token,
 		ExpDate: time.Now().Add(time.Duration(s.configuration.JWT.AccessTokenDuration)),

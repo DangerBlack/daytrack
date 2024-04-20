@@ -5,18 +5,18 @@ import (
 	"512b.it/daytrack/src/utils"
 )
 
-func (d *Database) InsertAPIKey(userID int) (string, error) {
+func (d *Database) InsertAPIKey(userID int, name string) (*string, error) {
 	key := utils.GenerateRandomString(32)
 
 	_, err := d.db.Exec(`
-		INSERT INTO api_keys (user_id, key)
-		VALUES (?, ?);
-	`, userID, key)
+		INSERT INTO api_keys (user_id, key, name)
+		VALUES (?, ?, ?);
+	`, userID, key, name)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return key, nil
+	return &key, nil
 }
 
 func (d *Database) GetAPIKey(key string) (*models.ApiKey, error) {
