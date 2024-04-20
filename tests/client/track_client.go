@@ -8,28 +8,29 @@ import (
 	"512b.it/daytrack/tests/utils"
 )
 
-func CreateApiKey(token string, name string) (*models.ApiKey, error) {
+func CreateTrack(token string, name string) error {
 	var err error
-	var response models.ApiKey
-	url := BASE_URL + "/v1/api_keys?name=" + name
+	url := BASE_URL + "/v1/tracks"
 
 	if err = utils.DoRequest(
 		url,
 		utils.WithRequestMethod(http.MethodPost),
 		utils.WithExpectedStatusCode(http.StatusCreated),
 		utils.WithAccessToken(token),
-		utils.ExtractGenericModel(&response),
+		utils.WithRequestBody(map[string]string{
+			"name": name,
+		}),
 	); err != nil {
-		return nil, fmt.Errorf("failed unable to create api key request: %w", err)
+		return fmt.Errorf("failed unable to create track request: %w", err)
 	}
 
-	return &response, nil
+	return nil
 }
 
-func ListApiKeys(token string) (*models.List[models.ApiKey], error) {
+func ListTracks(token string) (*models.List[models.Track], error) {
 	var err error
-	var response models.List[models.ApiKey]
-	url := BASE_URL + "/v1/api_keys"
+	var response models.List[models.Track]
+	url := BASE_URL + "/v1/tracks"
 
 	if err = utils.DoRequest(
 		url,
@@ -38,7 +39,7 @@ func ListApiKeys(token string) (*models.List[models.ApiKey], error) {
 		utils.WithAccessToken(token),
 		utils.ExtractGenericModel(&response),
 	); err != nil {
-		return nil, fmt.Errorf("failed unable to create api key request: %w", err)
+		return nil, fmt.Errorf("failed unable to create get tracks request: %w", err)
 	}
 
 	return &response, nil
