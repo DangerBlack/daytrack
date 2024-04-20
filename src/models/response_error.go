@@ -18,6 +18,17 @@ func NewError(err error, details string) ErrorResponseModel {
 	return e
 }
 
+func NewSuccess(message string, details string) ErrorResponseModel {
+	e := ErrorResponseModel{
+		Message: message,
+	}
+	if details != "" {
+		e.Details = details
+	}
+
+	return e
+}
+
 var ErrorBadRequest = errors.New("bad request")
 var ErrorInternalServerError = errors.New("internal server error")
 var ErrorNotFound = errors.New("not found")

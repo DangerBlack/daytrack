@@ -4,7 +4,7 @@ import (
 	"512b.it/daytrack/src/models"
 )
 
-func (d *Database) InsertUser(username, email, publicKey, salt string) (int, error) {
+func (d *Database) InsertUser(username, email, publicKey, salt string) (int64, error) {
 	res, err := d.db.Exec(`
 		INSERT INTO users (username, email, public_key, salt)
 		VALUES (?, ?, ?, ?);
@@ -18,10 +18,10 @@ func (d *Database) InsertUser(username, email, publicKey, salt string) (int, err
 		return 0, err
 	}
 
-	return int(id), nil
+	return id, nil
 }
 
-func (d *Database) GetUserByID(id int) (*models.User, error) {
+func (d *Database) GetUserByID(id int64) (*models.User, error) {
 	user := models.User{
 		ID: id,
 	}

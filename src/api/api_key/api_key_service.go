@@ -26,11 +26,11 @@ func New(db *database.Database, configuration models.Configuration) *Service {
 	}
 }
 
-func (s *Service) CreateApiKey(userID int, name string) (*string, error) {
+func (s *Service) CreateApiKey(userID int64, name string) (*string, error) {
 	return s.db.InsertAPIKey(userID, name)
 }
 
-func (s *Service) ListApiKeys(userID int) ([]models.ApiKey, error) {
+func (s *Service) ListApiKeys(userID int64) ([]models.ApiKey, error) {
 	var err error
 	var keys []models.ApiKey
 

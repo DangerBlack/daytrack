@@ -5,7 +5,7 @@ import (
 	"512b.it/daytrack/src/utils"
 )
 
-func (d *Database) InsertAPIKey(userID int, name string) (*string, error) {
+func (d *Database) InsertAPIKey(userID int64, name string) (*string, error) {
 	key := utils.GenerateRandomString(32)
 
 	_, err := d.db.Exec(`
@@ -42,7 +42,7 @@ func (d *Database) GetAPIKey(key string) (*models.ApiKey, error) {
 	return &apiKey, nil
 }
 
-func (d *Database) ListAPIKeys(userID int) ([]models.ApiKey, error) {
+func (d *Database) ListAPIKeys(userID int64) ([]models.ApiKey, error) {
 	rows, err := d.db.Query(`
 		SELECT 
 			id,

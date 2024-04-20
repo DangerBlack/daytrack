@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"512b.it/daytrack/src/api/api_key"
+	"512b.it/daytrack/src/api/track"
 	"512b.it/daytrack/src/api/user"
 	"512b.it/daytrack/src/models"
 	"512b.it/daytrack/src/utils"
@@ -17,12 +18,14 @@ type Server struct {
 	engine        *gin.Engine
 	user          *user.Service
 	apiKey        *api_key.Service
+	track         *track.Service
 }
 
 func NewServer(
 	configuration models.Configuration,
 	user *user.Service,
 	apiKey *api_key.Service,
+	track *track.Service,
 ) *Server {
 	engine := gin.New()
 
@@ -36,6 +39,7 @@ func NewServer(
 		configuration: configuration,
 		user:          user,
 		apiKey:        apiKey,
+		track:         track,
 	}
 
 	server.setupRoutes()
@@ -51,6 +55,7 @@ func (s *Server) setupRoutes() {
 
 	user.Inject(unauthenticatedRoute, authenticatedRoute, s.user, s.configuration)
 	api_key.Inject(unauthenticatedRoute, authenticatedRoute, s.apiKey, s.configuration)
+	track.Inject(unauthenticatedRoute, authenticatedRoute, s.track, s.configuration)
 }
 
 func (s *Server) createHealthRoute() gin.HandlerFunc {

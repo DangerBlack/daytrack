@@ -67,7 +67,7 @@ func (d *Database) InitDatabase() {
 			name TEXT NOT NULL,
 			description TEXT,
 			visibility TEXT NOT NULL DEFAULT 'private' CHECK (visibility IN ('private', 'public_r', 'public_rw')),
-			status TEXT NOT NULL DEFAULT 'enabled' CHECK (visibility IN ('enabled', 'disabled')),
+			status TEXT NOT NULL DEFAULT 'enabled' CHECK (status IN ('enabled', 'disabled')),
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			delete_at DATETIME,
 			FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,

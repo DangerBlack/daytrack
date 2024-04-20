@@ -60,7 +60,7 @@ func (c *ApiKeyController) createApiKeyRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
 		var key *string
-		var userID int
+		var userID int64
 
 		name := ctx.DefaultQuery("name", "default")
 
@@ -70,6 +70,7 @@ func (c *ApiKeyController) createApiKeyRoute() gin.HandlerFunc {
 		}
 
 		if key, err = c.apiKey.CreateApiKey(userID, name); err != nil {
+			c.logger(ctx).Err(err).Msg("Error while creating api key")
 			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to create api key"))
 			return
 		}
@@ -87,7 +88,7 @@ func (c *ApiKeyController) listApiKeysRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
 		var apiKeys []models.ApiKey
-		var userID int
+		var userID int64
 
 		if userID, err = utils.GetAuthenticatedUserID(ctx); err != nil {
 			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to get authenticated user id"))
@@ -95,6 +96,7 @@ func (c *ApiKeyController) listApiKeysRoute() gin.HandlerFunc {
 		}
 
 		if apiKeys, err = c.apiKey.ListApiKeys(userID); err != nil {
+			c.logger(ctx).Err(err).Msg("Error while listing api keys")
 			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list api keys"))
 			return
 		}
