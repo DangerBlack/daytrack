@@ -13,3 +13,18 @@ openssl pkey -in private.pem -pubout -out public.pem
 cat private.pem | sed -e :a -e '/$/N; s/\n/\\n/; ta'
 cat public.pem | sed -e :a -e '/$/N; s/\n/\\n/; ta'
 ```
+
+
+## Create env file
+
+```
+HTTP_HOST=localhost
+HTTP_PORT=3000
+
+OPAQUE_SALT_NONCE=
+OPAQUE_CHALLENGE_RANGE=
+
+JWT_PRIVATE_KEY=
+JWT_PUBLIC_KEY=
+JWT_ACCESS_TOKEN_DURATION=15m
+```
