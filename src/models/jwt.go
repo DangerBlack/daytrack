@@ -1,7 +1,9 @@
 package models
 
 import (
+	"context"
 	"crypto/ed25519"
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -10,11 +12,15 @@ import (
 type JWTPubKeyType = ed25519.PublicKey
 type JWTPrivKeyType = ed25519.PrivateKey
 
+var ErrWrongTokenSigning error = errors.New("wrong token signing method")
+var ErrTokenNotValid error = errors.New("token not valid")
+
 const (
-	JWTExpClaimKey     = "exp"  // Expiration
-	JWTSubjectClaimKey = "sub"  // AccountID
-	JWTTypeClaimKey    = "type" // one of JWTTokenType
+	JWTExpClaimKey     = "exp" // Expiration
+	JWTSubjectClaimKey = "sub" // AccountID
 )
+
+const USER_ID_CONTEXT_KEY = "UserID"
 
 func GenerateAccessJWT(
 	key JWTPrivKeyType,
@@ -62,4 +68,23 @@ func withJWTExpirationClaim(exp time.Duration) func(jwt.MapClaims) {
 
 func withJWTSubjectIDClaim(accountID string) func(jwt.MapClaims) {
 	return withJWTClaim(JWTSubjectClaimKey, accountID)
+}
+
+func ParseAndValidateJWT(ctx context.Context, stringToken string, key JWTPubKeyType) (*jwt.Token, error) {
+	token, err := jwt.Parse(stringToken, func(token *jwt.Token) (interface{}, error) {
+		_, ok := token.Method.(*jwt.SigningMethodEd25519)
+		if !ok {
+			return nil, ErrWrongTokenSigning
+		}
+		return key, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, ErrTokenNotValid
+	}
+
+	return token, nil
 }

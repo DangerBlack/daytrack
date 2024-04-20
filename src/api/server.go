@@ -41,6 +41,7 @@ func NewServer(
 func (s *Server) setupRoutes() {
 	authenticatedRoute := s.engine.Group("/")
 	unauthenticatedRoute := s.engine.Group("/")
+	authenticatedRoute.Use(AuthUserGuards(s.configuration))
 
 	unauthenticatedRoute.GET("/health", s.createHealthRoute())
 
