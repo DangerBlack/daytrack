@@ -35,7 +35,7 @@ func (d *Database) InitDatabase() {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			username TEXT NOT NULL,
 			email TEXT NOT NULL,
-			password TEXT NOT NULL,
+			public_key TEXT NOT NULL,
 			salt TEXT NOT NULL,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		);

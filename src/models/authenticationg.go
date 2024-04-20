@@ -12,3 +12,8 @@ type Token struct {
 	Token   string    `json:"token"`
 	ExpDate time.Time `json:"exp_date"`
 }
+
+type Challenge struct {
+	Challenge string `json:"challenge"`
+	Salt      string `json:"salt"`
+}

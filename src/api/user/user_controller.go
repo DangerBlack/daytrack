@@ -69,7 +69,10 @@ func (c *UserController) createUserChallenge() gin.HandlerFunc {
 
 		salt := c.user.GenerateSalt(ctx, c.configuration.Opaque.SaltNonce, email)
 
-		ctx.JSON(200, gin.H{"salt": salt, "challenge": challenge})
+		ctx.JSON(200, models.Challenge{
+			Salt:      salt,
+			Challenge: challenge,
+		})
 	}
 }
 
@@ -83,7 +86,7 @@ func (c *UserController) createUserRoute() gin.HandlerFunc {
 			return
 		}
 
-		if _, err := c.user.CreateUser(ctx, user.Username, user.Email, user.Password); err != nil {
+		if _, err := c.user.CreateUser(ctx, user.Username, user.Email, user.PublicKey); err != nil {
 			c.logger(ctx).Err(err).Msg("Unable to insert the user")
 			ctx.JSON(500, gin.H{"error": "Internal server error"})
 			return
@@ -95,7 +98,9 @@ func (c *UserController) createUserRoute() gin.HandlerFunc {
 
 func (c *UserController) signinUserRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		var err error
 		var auth models.SignIn
+		var token *models.Token
 
 		if err := ctx.ShouldBindJSON(&auth); err != nil {
 			c.logger(ctx).Err(err).Msg("Invalid request")
@@ -103,12 +108,12 @@ func (c *UserController) signinUserRoute() gin.HandlerFunc {
 			return
 		}
 
-		if _, err := c.user.SigninUser(ctx, auth.Email, auth.Challenge, auth.SignedChallenge); err != nil {
+		if token, err = c.user.SigninUser(ctx, auth.Email, auth.Challenge, auth.SignedChallenge); err != nil {
 			c.logger(ctx).Err(err).Msg("Unable to sign in the user")
 			ctx.JSON(500, gin.H{"error": "Internal server error"})
 			return
 		}
 
-		ctx.JSON(200, gin.H{"message": "User signed in"})
+		ctx.JSON(200, token)
 	}
 }

@@ -4,11 +4,11 @@ import (
 	"512b.it/daytrack/src/models"
 )
 
-func (d *Database) InsertUser(username, email, password, salt string) (int, error) {
+func (d *Database) InsertUser(username, email, publicKey, salt string) (int, error) {
 	res, err := d.db.Exec(`
-		INSERT INTO users (username, email, password, salt)
+		INSERT INTO users (username, email, public_key, salt)
 		VALUES (?, ?, ?, ?);
-	`, username, email, password, salt)
+	`, username, email, publicKey, salt)
 	if err != nil {
 		return 0, err
 	}
@@ -30,11 +30,11 @@ func (d *Database) GetUserByID(id int) (*models.User, error) {
 		SELECT
 			username,
 			email,
-			password,
+			public_key,
 			salt
 		FROM users
 		WHERE id = ?;
-	`, id).Scan(&user.Username, &user.Email, &user.Password, &user.Salt)
+	`, id).Scan(&user.Username, &user.Email, &user.PublicKey, &user.Salt)
 
 	if err != nil {
 		return nil, err
@@ -52,11 +52,11 @@ func (d *Database) GetUserByEmail(email string) (*models.User, error) {
 		SELECT
 			id,
 			username,
-			password,
+			public_key,
 			salt
 		FROM users
 		WHERE email = ?;
-	`, email).Scan(&user.ID, &user.Username, &user.Password, &user.Salt)
+	`, email).Scan(&user.ID, &user.Username, &user.PublicKey, &user.Salt)
 
 	if err != nil {
 		return nil, err

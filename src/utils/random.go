@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"math/big"
 	"time"
@@ -97,4 +98,16 @@ func PEMDecodeKeyPair(pub []byte, priv []byte) (ed25519.PublicKey, ed25519.Priva
 	}
 
 	return edPubKey, edPrivKey, nil
+}
+
+func GenerateKeyPairFromSeed(seed []byte) (ed25519.PublicKey, ed25519.PrivateKey, error) {
+	keypair := ed25519.NewKeyFromSeed(seed)
+
+	pubKey, ok := keypair.Public().(ed25519.PublicKey)
+
+	if !ok {
+		return nil, nil, errors.New("public key is not of type ed25519")
+	}
+
+	return pubKey, keypair, nil
 }

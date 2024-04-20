@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/ed25519"
 	"crypto/sha256"
+	"encoding/base64"
 	b64 "encoding/base64"
 	"errors"
 	"fmt"
@@ -50,15 +51,22 @@ func (s *Service) CreateUser(ctx context.Context, username, email, password stri
 	return id, nil
 }
 
-func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChallenge string) (*models.Token, error) {
-	user, err := s.db.GetUserByEmail(email)
-	if err != nil {
+func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChallengeBase64 string) (*models.Token, error) {
+	var err error
+	var user *models.User
+	var signedChallenge []byte
+	var publicKey []byte
+
+	if user, err = s.db.GetUserByEmail(email); err != nil {
 		return nil, err
 	}
 
-	publicKey, err := b64.StdEncoding.DecodeString(user.Password)
+	if signedChallenge, err = base64.StdEncoding.DecodeString(signedChallengeBase64); err != nil {
+		utils.FakeOpaqueOperation()
+		return nil, err
+	}
 
-	if err != nil {
+	if publicKey, err = b64.StdEncoding.DecodeString(user.PublicKey); err != nil {
 		utils.FakeOpaqueOperation()
 		return nil, err
 	}
@@ -72,6 +80,8 @@ func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChalle
 		utils.FakeOpaqueOperation()
 		return nil, err
 	}
+
+	println("token", token)
 
 	return &models.Token{
 		Token:   token,
