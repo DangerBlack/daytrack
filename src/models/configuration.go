@@ -61,8 +61,6 @@ func NewConfiguration() Configuration {
 	encodedJWTPubKey = strings.Replace(encodedJWTPubKey, `\n`, "\n", -1)
 	encodedJWTPrivKey = strings.Replace(encodedJWTPrivKey, `\n`, "\n", -1)
 
-	println(encodedJWTPubKey)
-	println(encodedJWTPrivKey)
 	if encodedJWTPubKey != "" && encodedJWTPrivKey != "" {
 		jwtPubKey, jwtPrivKey, err = utils.PEMDecodeKeyPair([]byte(encodedJWTPubKey), []byte(encodedJWTPrivKey))
 	} else {

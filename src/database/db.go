@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 
+	"512b.it/daytrack/src/models"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -123,4 +124,37 @@ func (d *Database) InitDatabase() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func GetNullString(s *string) sql.NullString {
+	nullString := sql.NullString{
+		Valid: s != nil,
+	}
+	if s != nil {
+		nullString.String = *s
+	}
+
+	return nullString
+}
+
+func GetNullStatus(s *models.TrackStatus) sql.NullString {
+	nullString := sql.NullString{
+		Valid: s != nil,
+	}
+	if s != nil {
+		nullString.String = string(*s)
+	}
+
+	return nullString
+}
+
+func GetNullVisibility(s *models.TrackVisibility) sql.NullString {
+	nullString := sql.NullString{
+		Valid: s != nil,
+	}
+	if s != nil {
+		nullString.String = string(*s)
+	}
+
+	return nullString
 }

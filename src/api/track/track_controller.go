@@ -51,6 +51,7 @@ func (c *TrackController) injectAuthenticatedRoutes() {
 	{
 		v1.POST("/tracks", c.createTrackRoute())
 		v1.GET("/tracks", c.listTracksRoute())
+		v1.PATCH("/tracks/:track_name", c.updateTracksRoute())
 	}
 }
 
@@ -111,5 +112,35 @@ func (c *TrackController) listTracksRoute() gin.HandlerFunc {
 		ctx.JSON(200, models.List[models.Track]{
 			Items: tracks,
 		})
+	}
+}
+
+func (c *TrackController) updateTracksRoute() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var err error
+		var userID int64
+
+		if userID, err = utils.GetAuthenticatedUserID(ctx); err != nil {
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to get authenticated user id"))
+			return
+		}
+
+		trackName := ctx.Param("track_name")
+
+		var track models.Track
+
+		if err := ctx.ShouldBindJSON(&track); err != nil {
+			c.logger(ctx).Err(err).Msg("Invalid request")
+			ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid request"))
+			return
+		}
+
+		if err = c.track.UpdateTrack(ctx, userID, trackName, track); err != nil {
+			c.logger(ctx).Err(err).Msg("Error while updating a track")
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to update track"))
+			return
+		}
+
+		ctx.JSON(200, models.NewSuccess("track updated", ""))
 	}
 }

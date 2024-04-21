@@ -1,6 +1,10 @@
 package database
 
-import "512b.it/daytrack/src/models"
+import (
+	"database/sql"
+
+	"512b.it/daytrack/src/models"
+)
 
 func (d *Database) InsertTrack(userID int64, name string, description string, visibility models.TrackVisibility, status models.TrackStatus) (*int64, error) {
 	res, err := d.db.Exec(`
@@ -100,4 +104,30 @@ func (d *Database) ListTracks(userID int64) ([]models.Track, error) {
 	}
 
 	return tracks, nil
+}
+
+func (d *Database) UpdateTrack(userID int64, trackName string, name *string, description *string, visibility *models.TrackVisibility, status *models.TrackStatus) error {
+	_, err := d.db.Exec(`
+		UPDATE tracks
+		SET
+			name =  COALESCE(:name, name),
+			description = COALESCE(:description, description),
+			visibility = COALESCE(:visibility, visibility)
+			-- status = COALESCE(:status, status)
+		WHERE
+			user_id = :user_id
+			AND name = :track_name;
+	`,
+		sql.Named("name", GetNullString(name)),
+		sql.Named("description", GetNullString(description)),
+		sql.Named("visibility", GetNullVisibility(visibility)),
+		//sql.Named("status", GetNullStatus(status)),
+		sql.Named("user_id", userID),
+		sql.Named("track_name", trackName),
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -30,3 +30,18 @@ func (s *Service) CreateTrack(ctx *gin.Context, userID int64, track models.Track
 func (s *Service) ListTracks(ctx *gin.Context, userID int64) ([]models.Track, error) {
 	return s.db.ListTracks(userID)
 }
+
+func (s *Service) UpdateTrack(ctx *gin.Context, userID int64, trackName string, track models.Track) error {
+	var visibility models.TrackVisibility
+	var status models.TrackStatus
+
+	if track.Visibility != "" {
+		visibility = track.Visibility
+	}
+
+	if track.Status != "" {
+		status = track.Status
+	}
+
+	return s.db.UpdateTrack(userID, trackName, utils.EmptyIsNull(track.Name), utils.EmptyIsNull(track.Description), &visibility, &status)
+}
