@@ -52,6 +52,7 @@ func (d *Database) GetTrackByUserIDAndName(userID int64, trackName string) (*mod
 
 	err := d.db.QueryRow(`
 		SELECT
+			id,
 			description,
 			visibility,
 			status,
@@ -59,7 +60,7 @@ func (d *Database) GetTrackByUserIDAndName(userID int64, trackName string) (*mod
 			delete_at
 		FROM tracks
 		WHERE user_id = ? and name = ?;
-	`, userID, trackName).Scan(&track.Description, &track.Visibility, &track.Status, &track.CreatedAt, &track.DeleteAt)
+	`, userID, trackName).Scan(&track.ID, &track.Description, &track.Visibility, &track.Status, &track.CreatedAt, &track.DeleteAt)
 
 	if err != nil {
 		return nil, err

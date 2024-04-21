@@ -45,7 +45,7 @@ func (s *Service) CreateEvent(userID int64, username string, trackName string, q
 	return s.db.InsertEvent(track.ID, quantity, createdAt)
 }
 
-func (s *Service) ListEvents(userID int64, username string, trackName string) ([]models.Day, error) {
+func (s *Service) ListEventsByDays(userID int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
 	var err error
 	var user *models.User
 	var track *models.Track
@@ -63,7 +63,32 @@ func (s *Service) ListEvents(userID int64, username string, trackName string) ([
 		return nil, err
 	}
 
-	if events, err = s.db.GetEventsByTrackID(track.ID); err != nil {
+	if events, err = s.db.GetEventsByTrackIDGroupByDay(track.ID, after); err != nil {
+		return nil, err
+	}
+
+	return events, nil
+}
+
+func (s *Service) ListEvents(userID int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
+	var err error
+	var user *models.User
+	var track *models.Track
+	var events []models.Day
+
+	if user, err = s.db.GetUserByID(userID); err != nil {
+		return nil, err
+	}
+
+	if user.Username != username {
+		return nil, errors.New("this event cannot be called by you")
+	}
+
+	if track, err = s.db.GetTrackByUserIDAndName(user.ID, trackName); err != nil {
+		return nil, err
+	}
+
+	if events, err = s.db.GetEventsByTrackID(track.ID, after); err != nil {
 		return nil, err
 	}
 

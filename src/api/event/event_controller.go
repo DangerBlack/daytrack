@@ -52,7 +52,6 @@ func (c *EventController) injectUnauthenticatedRoutes() {
 	{
 		v1.POST("/events/:username/:track_name", c.createEventRoute())
 		v1.GET("/events/:username/:track_name", c.listEventRoute())
-
 	}
 }
 
@@ -67,7 +66,7 @@ func (c *EventController) createEventRoute() gin.HandlerFunc {
 
 		username := ctx.Param("username")
 		trackName := ctx.Param("track_name")
-		createdAtString := utils.EmptyIsNull(ctx.DefaultQuery("created_at", ""))
+		createdAtString := ctx.DefaultQuery("created_at", "")
 		quantity, err := strconv.Atoi(ctx.DefaultQuery("quantity", "1"))
 
 		if err != nil {
@@ -75,9 +74,10 @@ func (c *EventController) createEventRoute() gin.HandlerFunc {
 			return
 		}
 
-		if createdAtString != nil {
-			createdAtx, err := time.Parse(time.RFC3339, *createdAtString)
+		if createdAtString != "" {
+			createdAtx, err := time.Parse(time.RFC3339, createdAtString)
 			if err != nil {
+				c.logger(ctx).Err(err).Msg("Failed to parse created_at")
 				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid created_at"))
 				return
 			}
@@ -104,19 +104,45 @@ func (c *EventController) listEventRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
 		var userID int64
+		var events []models.Day
+		var after *time.Time
 
 		username := ctx.Param("username")
 		trackName := ctx.Param("track_name")
+		afterString := utils.EmptyIsNull(ctx.DefaultQuery("after", ""))
+
+		listBy := models.ListBy(ctx.DefaultQuery("list_by", string(models.ListByDay)))
 
 		if userID, err = utils.GetAuthenticatedUserID(ctx); err != nil {
 			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to get authenticated user id"))
 			return
 		}
 
-		events, err := c.event.ListEvents(userID, username, trackName)
-		if err != nil {
-			c.logger(ctx).Err(err).Msg("Failed to list events")
-			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
+		if afterString != nil {
+			afterX, err := time.Parse(time.RFC3339, *afterString)
+			if err != nil {
+				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid created_at"))
+				return
+			}
+
+			after = &afterX
+		}
+
+		switch listBy {
+		case models.ListByDay:
+			if events, err = c.event.ListEventsByDays(userID, username, trackName, after); err != nil {
+				c.logger(ctx).Err(err).Msg("Failed to list events grouped by day")
+				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
+				return
+			}
+		case models.ListByRaw:
+			if events, err = c.event.ListEvents(userID, username, trackName, after); err != nil {
+				c.logger(ctx).Err(err).Msg("Failed to list events raws")
+				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
+				return
+			}
+		default:
+			ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid list_by"))
 			return
 		}
 
