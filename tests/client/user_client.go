@@ -24,7 +24,7 @@ type SignedUser struct {
 func GenerateChallenge(email string) (*models.Challenge, error) {
 	var err error
 	var response models.Challenge
-	url := BASE_URL + "/v1/user/challenge?email=" + email
+	url := BASE_URL + "/v1/users/challenge?email=" + email
 
 	if err = utils.DoRequest(
 		url,
@@ -41,7 +41,7 @@ func GenerateChallenge(email string) (*models.Challenge, error) {
 func SignUp(username, email, password string) error {
 	var err error
 	var challenge *models.Challenge
-	url := BASE_URL + "/v1/user/signup"
+	url := BASE_URL + "/v1/users/signup"
 
 	if challenge, err = GenerateChallenge(email); err != nil {
 		return err
@@ -77,7 +77,7 @@ func SignIn(email, password string) (*models.Token, error) {
 	var err error
 	var response models.Token
 	var challenge *models.Challenge
-	url := BASE_URL + "/v1/user/signin"
+	url := BASE_URL + "/v1/users/signin"
 
 	if challenge, err = GenerateChallenge(email); err != nil {
 		return nil, err

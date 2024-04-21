@@ -58,6 +58,19 @@ func (c *EventController) injectUnauthenticatedRoutes() {
 func (c *EventController) injectAuthenticatedRoutes() {
 }
 
+// @Tags event
+// @Security ApiKeyAuth
+// @Schemes https
+// @Router /v1/events/{username}/{track_name} [POST]
+// @Summary Create an event
+// @Description Create an event for the authenticated user
+// @Param username path string true "Username"
+// @Param track_name path string true "Track name"
+// @Param created_at query string false "Created at"
+// @Param quantity query int false "Quantity"
+// @Accept json
+// @Produce json
+// @Success 201 {object} models.ResponseModel
 func (c *EventController) createEventRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
@@ -106,6 +119,19 @@ func (c *EventController) createEventRoute() gin.HandlerFunc {
 	}
 }
 
+// @Tags event
+// @Security ApiKeyAuth
+// @Schemes https
+// @Router /v1/events/{username}/{track_name} [GET]
+// @Summary List events
+// @Description List all events for a track
+// @Param username path string true "Username"
+// @Param track_name path string true "Track name"
+// @Param created_at query string false "Created at"
+// @Param quantity query int false "Quantity"
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.List[models.Day]
 func (c *EventController) listEventRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error

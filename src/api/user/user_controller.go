@@ -49,9 +49,9 @@ func new(
 func (c *UserController) injectUnauthenticatedRoutes() {
 	v1 := c.unauthenticatedRoute.Group("v1")
 	{
-		v1.GET("user/challenge", c.createUserChallenge())
-		v1.POST("user/signup", c.createUserRoute())
-		v1.POST("user/signin", c.signinUserRoute())
+		v1.GET("users/challenge", c.createUserChallenge())
+		v1.POST("users/signup", c.createUserRoute())
+		v1.POST("users/signin", c.signinUserRoute())
 	}
 }
 
@@ -61,6 +61,15 @@ func (c *UserController) injectAuthenticatedRoutes() {
 	// }
 }
 
+// @Tags user
+// @Schemes https
+// @Router /v1/users/challenge [GET]
+// @Summary Create a user challenge
+// @Description Create a user challenge given an email address
+// @Accept json
+// @Param email query string true "The email address of the user"
+// @Produce json
+// @Success 200 {object} models.Challenge
 func (c *UserController) createUserChallenge() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		email := ctx.Query("email")
@@ -76,6 +85,15 @@ func (c *UserController) createUserChallenge() gin.HandlerFunc {
 	}
 }
 
+// @Tags user
+// @Schemes https
+// @Router /v1/users/signup [POST]
+// @Summary Create a user
+// @Description Create a new user
+// @Accept json
+// @Param request body models.User true "the user body to create"
+// @Produce json
+// @Success 201 {object} models.ResponseModel
 func (c *UserController) createUserRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var user models.User
@@ -92,10 +110,19 @@ func (c *UserController) createUserRoute() gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(201, gin.H{"message": "user created"})
+		ctx.JSON(201, models.NewSuccess("User created", ""))
 	}
 }
 
+// @Tags user
+// @Schemes https
+// @Router /v1/users/signin [POST]
+// @Summary Sign in a user
+// @Description Sign in a user
+// @Accept json
+// @Param request body  models.SignIn true "the signed challenge to enter the system"
+// @Produce json
+// @Success 201 {object} models.ResponseModel
 func (c *UserController) signinUserRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error

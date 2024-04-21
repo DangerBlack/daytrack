@@ -55,6 +55,16 @@ func (c *TrackController) injectAuthenticatedRoutes() {
 	}
 }
 
+// @Tags track
+// @Security TokenAuth
+// @Schemes https
+// @Router /v1/tracks [POST]
+// @Summary Create a track
+// @Description Create a track
+// @Accept json
+// @Param request body models.Track true "Track object"
+// @Produce json
+// @Success 201 {object} models.ResponseModel
 func (c *TrackController) createTrackRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
@@ -93,6 +103,15 @@ func (c *TrackController) createTrackRoute() gin.HandlerFunc {
 	}
 }
 
+// @Tags track
+// @Security TokenAuth
+// @Schemes https
+// @Router /v1/tracks [GET]
+// @Summary List tracks
+// @Description List all tracks for the authenticated user
+// @Accept json
+// @Produce json
+// @Success 201 {object} models.List[models.Track]
 func (c *TrackController) listTracksRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error

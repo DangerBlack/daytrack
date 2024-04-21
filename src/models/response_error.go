@@ -2,13 +2,13 @@ package models
 
 import "errors"
 
-type ErrorResponseModel struct {
+type ResponseModel struct {
 	Message string `json:"message" example:"invalid"`
 	Details string `json:"details,omitempty" example:"email is invalid"`
 }
 
-func NewError(err error, details string) ErrorResponseModel {
-	e := ErrorResponseModel{
+func NewError(err error, details string) ResponseModel {
+	e := ResponseModel{
 		Message: err.Error(),
 	}
 	if details != "" {
@@ -18,8 +18,8 @@ func NewError(err error, details string) ErrorResponseModel {
 	return e
 }
 
-func NewSuccess(message string, details string) ErrorResponseModel {
-	e := ErrorResponseModel{
+func NewSuccess(message string, details string) ResponseModel {
+	e := ResponseModel{
 		Message: message,
 	}
 	if details != "" {

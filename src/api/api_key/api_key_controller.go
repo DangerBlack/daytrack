@@ -56,6 +56,16 @@ func (c *ApiKeyController) injectAuthenticatedRoutes() {
 	}
 }
 
+// @Tags api_key
+// @Security TokenAuth
+// @Schemes https
+// @Router /v1/api_keys [POST]
+// @Summary Create an api key
+// @Description Create an api key for the authenticated user
+// @Accept json
+// @Param name query string false "Name of the api key" default(default)
+// @Produce json
+// @Success 201 {object} models.ApiKey
 func (c *ApiKeyController) createApiKeyRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
@@ -84,6 +94,15 @@ func (c *ApiKeyController) createApiKeyRoute() gin.HandlerFunc {
 	}
 }
 
+// @Tags api_key
+// @Security TokenAuth
+// @Schemes https
+// @Router /v1/api_keys [GET]
+// @Summary List api keys
+// @Description List all api keys for the authenticated user
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.List[models.ApiKey]
 func (c *ApiKeyController) listApiKeysRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error

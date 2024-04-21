@@ -13,6 +13,10 @@ import (
 	"512b.it/daytrack/src/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
+
+	_ "512b.it/daytrack/openapi"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Server struct {
@@ -62,6 +66,11 @@ func (s *Server) setupRoutes() {
 	api_key.Inject(unauthenticatedRoute, authenticatedRoute, s.apiKey, s.configuration)
 	track.Inject(unauthenticatedRoute, authenticatedRoute, s.track, s.configuration)
 	event.Inject(unauthenticatedRoute, authenticatedRoute, s.event, s.configuration)
+
+	if s.configuration.Environment == models.Development {
+		log.Info().Msgf("Enable swagger on http://%s:%d/swagger/index.html", s.configuration.HTTPHost, s.configuration.HTTPPort)
+		s.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 }
 
 func (s *Server) createHealthRoute() gin.HandlerFunc {

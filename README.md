@@ -17,7 +17,7 @@ cat public.pem | sed -e :a -e '/$/N; s/\n/\\n/; ta'
 
 ## Create env file
 
-```
+```env
 HTTP_HOST=localhost
 HTTP_PORT=3000
 
@@ -27,4 +27,16 @@ OPAQUE_CHALLENGE_RANGE=
 JWT_PRIVATE_KEY=
 JWT_PUBLIC_KEY=
 JWT_ACCESS_TOKEN_DURATION=15m
+```
+
+## Generate swagger
+
+```bash
+swag init -o openapi
+```
+
+## How to run
+
+```bash
+go run .
 ```

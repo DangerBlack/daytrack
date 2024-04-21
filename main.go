@@ -11,6 +11,22 @@ import (
 	"512b.it/daytrack/src/utils"
 )
 
+// @title dailytrack
+// @version 0.0.1
+// @description The purpose of this service is to properly track daily activities.
+// @contact.email help@512b.it
+// @contact.name DailyTrack
+
+// @host      localhost:3000
+
+// @securityDefinitions.apikey TokenAuth
+// @in header
+// @name Authorization
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in query
+// @name key
+
 func main() {
 	var err error
 	// ctx, cancel := context.WithCancel(context.Background())
