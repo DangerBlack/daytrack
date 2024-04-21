@@ -355,22 +355,28 @@
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 },
                 "delete_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "key": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "default"
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -378,10 +384,12 @@
             "type": "object",
             "properties": {
                 "challenge": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
                 },
                 "salt": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
                 }
             }
         },
@@ -389,10 +397,12 @@
             "type": "object",
             "properties": {
                 "date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 },
                 "quantity": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -444,15 +454,23 @@
         },
         "models.SignIn": {
             "type": "object",
+            "required": [
+                "challenge",
+                "email",
+                "signed_challenge"
+            ],
             "properties": {
                 "challenge": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "test@dailytrack.it"
                 },
                 "signed_challenge": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
                 }
             }
         },
@@ -460,28 +478,44 @@
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 },
                 "delete_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "default description"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "default"
                 },
                 "status": {
-                    "$ref": "#/definitions/models.TrackStatus"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrackStatus"
+                        }
+                    ],
+                    "example": "enabled"
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "visibility": {
-                    "$ref": "#/definitions/models.TrackVisibility"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrackVisibility"
+                        }
+                    ],
+                    "example": "private"
                 }
             }
         },
@@ -513,19 +547,24 @@
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "test@dailytrack.it"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "public_key": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
                 },
                 "salt": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "default"
                 }
             }
         }
