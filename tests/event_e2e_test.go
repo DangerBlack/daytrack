@@ -217,3 +217,76 @@ func TestListPublicEventsByDay(t *testing.T) {
 		return
 	}
 }
+
+func TestUnableToListPublicEventsByDay(t *testing.T) {
+	t.Parallel()
+
+	var err error
+	var user, user2 *client.SignedUser
+	var apiKey, apiKey2 *models.ApiKey
+	trackName := "water-plant"
+
+	if user, err = client.CreateUser(); err != nil {
+		t.Fatalf("unable to sign up %v", err)
+		return
+	}
+
+	if apiKey, err = client.CreateApiKey(user.Token, "test"); err != nil {
+		t.Fatalf("unable to create api key %v", err)
+		return
+	}
+
+	if user2, err = client.CreateUser(); err != nil {
+		t.Fatalf("unable to sign up %v", err)
+		return
+	}
+
+	if apiKey2, err = client.CreateApiKey(user2.Token, "test"); err != nil {
+		t.Fatalf("unable to create api key %v", err)
+		return
+	}
+
+	if err = client.CreateTrack(user.Token, trackName); err != nil {
+		t.Fatalf("unable to create api key %v", err)
+		return
+	}
+
+	var tracks *models.List[models.Track]
+	if tracks, err = client.ListTracks(user.Token); err != nil {
+		t.Fatalf("unable to get track %v", err)
+		return
+	}
+
+	if len(tracks.Items) != 1 {
+		t.Fatalf("expected 1 track, got %d", len(tracks.Items))
+		return
+	}
+
+	if tracks.Items[0].Visibility != models.TrackVisibilityPrivate {
+		t.Fatalf("expected track to be private, got %s", tracks.Items[0].Visibility)
+		return
+	}
+
+	t1, _ := time.Parse(time.RFC3339, "2021-01-01T00:00:00Z")
+	t2, _ := time.Parse(time.RFC3339, "2021-01-01T00:00:00Z")
+	t3, _ := time.Parse(time.RFC3339, "2021-01-02T00:00:00Z")
+
+	for _, c := range []time.Time{t1, t2, t3} {
+		if err = client.TrackEvent(apiKey.Key, user.Username, trackName, 1, &c); err != nil {
+			t.Fatalf("unable to track event %v", err)
+			return
+		}
+	}
+
+	if _, err = client.ListEvents(apiKey2.Key, user.Username, trackName, nil); err == nil {
+		t.Fatalf("expect a failure but succeed ")
+		return
+	}
+
+	listBy := models.ListByRaw
+	if _, err = client.ListEvents(apiKey2.Key, user.Username, trackName, &listBy); err == nil {
+		t.Fatalf("expect a failure but succeed ")
+		return
+	}
+
+}

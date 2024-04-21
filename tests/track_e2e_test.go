@@ -68,3 +68,42 @@ func TestListTracks(t *testing.T) {
 		}
 	}
 }
+
+func TestUpdateTrack(t *testing.T) {
+	t.Parallel()
+
+	var err error
+	var user *client.SignedUser
+	trackName := "water-plant"
+
+	if user, err = client.CreateUser(); err != nil {
+		t.Fatalf("unable to sign up %v", err)
+		return
+	}
+
+	if err = client.CreateTrack(user.Token, trackName); err != nil {
+		t.Fatalf("unable to create api key %v", err)
+		return
+	}
+
+	if err = client.UpdateTrack(user.Token, trackName, models.TrackVisibilityPublicRead); err != nil {
+		t.Fatalf("unable to update track %v", err)
+		return
+	}
+
+	var tracks *models.List[models.Track]
+	if tracks, err = client.ListTracks(user.Token); err != nil {
+		t.Fatalf("unable to get track %v", err)
+		return
+	}
+
+	if len(tracks.Items) != 1 {
+		t.Fatalf("expected 1 track, got %d", len(tracks.Items))
+		return
+	}
+
+	if tracks.Items[0].Visibility != models.TrackVisibilityPublicRead {
+		t.Fatalf("expected track to be public read, got %s", tracks.Items[0].Visibility)
+		return
+	}
+}
