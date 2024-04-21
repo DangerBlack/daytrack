@@ -92,6 +92,12 @@ func (c *EventController) createEventRoute() gin.HandlerFunc {
 
 		if err = c.event.CreateEvent(userID, username, trackName, quantity, createdAt); err != nil {
 			c.logger(ctx).Err(err).Msg("Failed to create event")
+
+			if err == ErrorEventCannotBeCalledByYou {
+				ctx.JSON(403, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
+				return
+			}
+
 			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to create event"))
 			return
 		}

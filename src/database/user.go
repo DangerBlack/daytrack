@@ -77,7 +77,7 @@ func (d *Database) GetUserByName(username string) (*models.User, error) {
 			public_key,
 			salt
 		FROM users
-		WHERE email = ?;
+		WHERE username = ?;
 	`, username).Scan(&user.ID, &user.Email, &user.PublicKey, &user.Salt)
 
 	if err != nil {

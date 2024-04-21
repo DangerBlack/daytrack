@@ -9,6 +9,8 @@ import (
 	"512b.it/daytrack/src/utils"
 )
 
+var ErrorEventCannotBeCalledByYou = errors.New("this event cannot be called by you")
+
 type Service struct {
 	db            *database.Database
 	configuration models.Configuration
@@ -27,19 +29,23 @@ func New(db *database.Database, configuration models.Configuration) *Service {
 
 func (s *Service) CreateEvent(userID int64, username string, trackName string, quantity int, createdAt *time.Time) error {
 	var err error
-	var user *models.User
+	var user, user2 *models.User
 	var track *models.Track
 
 	if user, err = s.db.GetUserByID(userID); err != nil {
 		return err
 	}
 
-	if user.Username != username {
-		return errors.New("this event cannot be called by you")
+	if user2, err = s.db.GetUserByName(username); err != nil {
+		return err
 	}
 
-	if track, err = s.db.GetTrackByUserIDAndName(user.ID, trackName); err != nil {
+	if track, err = s.db.GetTrackByUserIDAndName(user2.ID, trackName); err != nil {
 		return err
+	}
+
+	if user.Username != username && track.Visibility != models.TrackVisibilityPublicWrite {
+		return ErrorEventCannotBeCalledByYou
 	}
 
 	return s.db.InsertEvent(track.ID, quantity, createdAt)
@@ -47,7 +53,7 @@ func (s *Service) CreateEvent(userID int64, username string, trackName string, q
 
 func (s *Service) ListEventsByDays(userID int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
 	var err error
-	var user *models.User
+	var user, user2 *models.User
 	var track *models.Track
 	var events []models.Day
 
@@ -55,12 +61,16 @@ func (s *Service) ListEventsByDays(userID int64, username string, trackName stri
 		return nil, err
 	}
 
-	if user.Username != username {
-		return nil, errors.New("this event cannot be called by you")
+	if user2, err = s.db.GetUserByName(username); err != nil {
+		return nil, err
 	}
 
-	if track, err = s.db.GetTrackByUserIDAndName(user.ID, trackName); err != nil {
+	if track, err = s.db.GetTrackByUserIDAndName(user2.ID, trackName); err != nil {
 		return nil, err
+	}
+
+	if user.Username != username && (track.Visibility != models.TrackVisibilityPublicRead || track.Visibility != models.TrackVisibilityPublicWrite) {
+		return nil, ErrorEventCannotBeCalledByYou
 	}
 
 	if events, err = s.db.GetEventsByTrackIDGroupByDay(track.ID, after); err != nil {
