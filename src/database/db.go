@@ -83,7 +83,7 @@ func (d *Database) InitDatabase() {
 		CREATE TABLE IF NOT EXISTS events (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			track_id INTEGER NOT NULL,
-			create_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			quantity INTEGER NOT NULL,
 			FOREIGN KEY(track_id) REFERENCES tracks(id) ON DELETE CASCADE
 		);
@@ -96,7 +96,7 @@ func (d *Database) InitDatabase() {
 		CREATE TABLE IF NOT EXISTS actions (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			track_id INTEGER NOT NULL,
-			create_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			action_type TEXT NOT NULL,
 			action_body TEXT,
 			condition TEXT,
@@ -114,7 +114,7 @@ func (d *Database) InitDatabase() {
 			event_id INTEGER NOT NULL,
 			action_id INTEGER NOT NULL,
 			api_key_id INTEGER NOT NULL,
-			create_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY(event_id) REFERENCES events(id) ON DELETE CASCADE,
 			FOREIGN KEY(action_id) REFERENCES actions(id) ON DELETE CASCADE,
 			FOREIGN KEY(api_key_id) REFERENCES api_keys(id) ON DELETE CASCADE
