@@ -63,3 +63,19 @@ func ListTracks(token string) (*models.List[models.Track], error) {
 
 	return &response, nil
 }
+
+func DeleteTrack(token string, name string) error {
+	var err error
+	url := BASE_URL + "/v1/tracks/" + name
+
+	if err = utils.DoRequest(
+		url,
+		utils.WithRequestMethod(http.MethodDelete),
+		utils.WithExpectedStatusCode(http.StatusOK),
+		utils.WithAccessToken(token),
+	); err != nil {
+		return fmt.Errorf("failed unable to create track request: %w", err)
+	}
+
+	return nil
+}
