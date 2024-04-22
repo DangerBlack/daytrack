@@ -78,3 +78,37 @@ func TestListApiKey(t *testing.T) {
 		}
 	}
 }
+
+func TestDeleteApiKey(t *testing.T) {
+	t.Parallel()
+
+	var err error
+	var user *client.SignedUser
+	var apiKey *models.ApiKey
+	var apiKeys *models.List[models.ApiKey]
+
+	if user, err = client.CreateUser(); err != nil {
+		t.Fatalf("unable to sign up %v", err)
+		return
+	}
+
+	if apiKey, err = client.CreateApiKey(user.Token, "test"); err != nil {
+		t.Fatalf("unable to create api key %v", err)
+		return
+	}
+
+	if err = client.DeleteApiKey(user.Token, apiKey.Key); err != nil {
+		t.Fatalf("unable to delete api key %v", err)
+		return
+	}
+
+	if apiKeys, err = client.ListApiKeys(user.Token); err != nil {
+		t.Fatalf("unable to list api keys %v", err)
+		return
+	}
+
+	if len(apiKeys.Items) != 0 {
+		t.Fatalf("expected 0 api keys, got %d", len(apiKeys.Items))
+		return
+	}
+}

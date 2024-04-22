@@ -43,3 +43,19 @@ func ListApiKeys(token string) (*models.List[models.ApiKey], error) {
 
 	return &response, nil
 }
+
+func DeleteApiKey(token string, key string) error {
+	var err error
+	url := BASE_URL + "/v1/api_keys/" + key
+
+	if err = utils.DoRequest(
+		url,
+		utils.WithRequestMethod(http.MethodDelete),
+		utils.WithExpectedStatusCode(http.StatusNoContent),
+		utils.WithAccessToken(token),
+	); err != nil {
+		return fmt.Errorf("failed unable to delete api key request: %w", err)
+	}
+
+	return nil
+}
