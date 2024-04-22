@@ -82,6 +82,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/api_keys/{key}": {
+            "delete": {
+                "security": [
+                    {
+                        "TokenAuth": []
+                    }
+                ],
+                "description": "Delete an api key for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api_key"
+                ],
+                "summary": "Delete an api key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Key of the api key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/v1/events/{username}/{track_name}": {
             "get": {
                 "security": [
@@ -236,6 +270,45 @@ const docTemplate = `{
                     "track"
                 ],
                 "summary": "Create a track",
+                "parameters": [
+                    {
+                        "description": "Track object",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Track"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tracks/{track_name}": {
+            "patch": {
+                "security": [
+                    {
+                        "TokenAuth": []
+                    }
+                ],
+                "description": "Update a track",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "Update a track",
                 "parameters": [
                     {
                         "description": "Track object",

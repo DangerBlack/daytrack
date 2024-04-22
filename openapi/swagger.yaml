@@ -197,6 +197,27 @@ paths:
       summary: Create an api key
       tags:
       - api_key
+  /v1/api_keys/{key}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an api key for the authenticated user
+      parameters:
+      - description: Key of the api key
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - TokenAuth: []
+      summary: Delete an api key
+      tags:
+      - api_key
   /v1/events/{username}/{track_name}:
     get:
       consumes:
@@ -306,6 +327,30 @@ paths:
       security:
       - TokenAuth: []
       summary: Create a track
+      tags:
+      - track
+  /v1/tracks/{track_name}:
+    patch:
+      consumes:
+      - application/json
+      description: Update a track
+      parameters:
+      - description: Track object
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Track'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ResponseModel'
+      security:
+      - TokenAuth: []
+      summary: Update a track
       tags:
       - track
   /v1/users/challenge:
