@@ -277,7 +277,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Track"
+                            "$ref": "#/definitions/models.CreateTrack"
                         }
                     }
                 ],
@@ -471,6 +471,50 @@ const docTemplate = `{
                 "salt": {
                     "type": "string",
                     "example": "a1b2c3d4e5f6g7h8i9j0"
+                }
+            }
+        },
+        "models.CreateTrack": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "delete_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "default description"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "default"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrackStatus"
+                        }
+                    ],
+                    "example": "enabled"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "visibility": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrackVisibility"
+                        }
+                    ],
+                    "example": "private"
                 }
             }
         },
