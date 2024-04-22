@@ -96,17 +96,23 @@ func (c *UserController) createUserChallenge() gin.HandlerFunc {
 // @Success 201 {object} models.ResponseModel
 func (c *UserController) createUserRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var user models.User
+		var user models.CreateUser
 
 		if err := ctx.ShouldBindJSON(&user); err != nil {
 			c.logger(ctx).Err(err).Msg("Invalid request")
-			ctx.JSON(400, gin.H{"error": "Invalid request"})
+			ctx.JSON(400, models.NewError(models.ErrorBadRequest, "Invalid request"))
+			return
+		}
+
+		if !models.IsValidTrackName(user.Username) {
+			c.logger(ctx).Error().Msgf("Invalid username %s", user.Username)
+			ctx.JSON(400, models.NewError(models.ErrorBadRequest, "Invalid username"))
 			return
 		}
 
 		if _, err := c.user.CreateUser(ctx, user.Username, user.Email, user.PublicKey); err != nil {
 			c.logger(ctx).Err(err).Msg("Unable to insert the user")
-			ctx.JSON(500, gin.H{"error": "Internal server error"})
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "Unable to insert the user"))
 			return
 		}
 
@@ -131,13 +137,13 @@ func (c *UserController) signinUserRoute() gin.HandlerFunc {
 
 		if err := ctx.ShouldBindJSON(&auth); err != nil {
 			c.logger(ctx).Err(err).Msg("Invalid request")
-			ctx.JSON(400, gin.H{"error": "Invalid request"})
+			ctx.JSON(400, models.NewError(models.ErrorBadRequest, "Invalid request"))
 			return
 		}
 
 		if token, err = c.user.SigninUser(ctx, auth.Email, auth.Challenge, auth.SignedChallenge); err != nil {
 			c.logger(ctx).Err(err).Msg("Unable to sign in the user")
-			ctx.JSON(500, gin.H{"error": "Internal server error"})
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "Unable to sign in the user"))
 			return
 		}
 
