@@ -23,7 +23,7 @@ func New(db *database.Database, configuration models.Configuration) *Service {
 	}
 }
 
-func (s *Service) CreateTrack(ctx *gin.Context, userID int64, track models.Track) (*int64, error) {
+func (s *Service) CreateTrack(ctx *gin.Context, userID int64, track models.CreateTrack) (*int64, error) {
 	return s.db.InsertTrack(userID, track.Name, track.Description, track.Visibility, track.Status)
 }
 

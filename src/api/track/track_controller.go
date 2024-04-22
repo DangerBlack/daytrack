@@ -62,7 +62,7 @@ func (c *TrackController) injectAuthenticatedRoutes() {
 // @Summary Create a track
 // @Description Create a track
 // @Accept json
-// @Param request body models.Track true "Track object"
+// @Param request body models.CreateTrack true "Track object"
 // @Produce json
 // @Success 201 {object} models.ResponseModel
 func (c *TrackController) createTrackRoute() gin.HandlerFunc {
@@ -75,7 +75,7 @@ func (c *TrackController) createTrackRoute() gin.HandlerFunc {
 			return
 		}
 
-		var track models.Track
+		var track models.CreateTrack
 
 		if err := ctx.ShouldBindJSON(&track); err != nil {
 			c.logger(ctx).Err(err).Msg("Invalid request")
@@ -84,6 +84,11 @@ func (c *TrackController) createTrackRoute() gin.HandlerFunc {
 		}
 
 		c.logger(ctx).Debug().Msgf("track: %v", track)
+
+		if !models.IsValidTrackName(track.Name) {
+			ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid track name"))
+			return
+		}
 
 		if track.Visibility == "" {
 			track.Visibility = models.TrackVisibilityPrivate
@@ -134,6 +139,16 @@ func (c *TrackController) listTracksRoute() gin.HandlerFunc {
 	}
 }
 
+// @Tags track
+// @Security TokenAuth
+// @Schemes https
+// @Router /v1/tracks/{track_name} [PATCH]
+// @Summary  Update a track
+// @Description Update a track
+// @Accept json
+// @Param request body models.Track true "Track object"
+// @Produce json
+// @Success 201 {object} models.ResponseModel
 func (c *TrackController) updateTracksRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
