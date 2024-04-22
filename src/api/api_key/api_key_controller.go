@@ -53,6 +53,7 @@ func (c *ApiKeyController) injectAuthenticatedRoutes() {
 	{
 		v1.POST("/api_keys", c.createApiKeyRoute())
 		v1.GET("/api_keys", c.listApiKeysRoute())
+		v1.DELETE("/api_keys/:key", c.deleteApiKeyRoute())
 	}
 }
 
@@ -123,5 +124,38 @@ func (c *ApiKeyController) listApiKeysRoute() gin.HandlerFunc {
 		ctx.JSON(200, models.List[models.ApiKey]{
 			Items: apiKeys,
 		})
+	}
+}
+
+// @Tags api_key
+// @Security TokenAuth
+// @Schemes https
+// @Router /v1/api_keys/{key} [DELETE]
+// @Summary Delete an api key
+// @Description Delete an api key for the authenticated user
+// @Accept json
+// @Param key path string true "Key of the api key"
+// @Produce json
+// @Success 204
+func (c *ApiKeyController) deleteApiKeyRoute() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var err error
+		var userID int64
+		var key string
+
+		if userID, err = utils.GetAuthenticatedUserID(ctx); err != nil {
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to get authenticated user id"))
+			return
+		}
+
+		key = ctx.Param("key")
+
+		if err = c.apiKey.DeleteApiKey(userID, key); err != nil {
+			c.logger(ctx).Err(err).Msg("Error while deleting api key")
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to delete api key"))
+			return
+		}
+
+		ctx.Status(204)
 	}
 }
