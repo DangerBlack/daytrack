@@ -358,6 +358,28 @@ paths:
       tags:
       - track
   /v1/tracks/{track_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a track
+      parameters:
+      - description: Track name
+        in: path
+        name: track_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ResponseModel'
+      security:
+      - TokenAuth: []
+      summary: Delete a track
+      tags:
+      - track
     patch:
       consumes:
       - application/json
