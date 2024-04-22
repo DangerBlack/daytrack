@@ -126,3 +126,47 @@ func TestUpdateTrack(t *testing.T) {
 		return
 	}
 }
+
+func TestDeleteTrack(t *testing.T) {
+	t.Parallel()
+
+	var err error
+	var user *client.SignedUser
+	trackName := "water-plant"
+
+	if user, err = client.CreateUser(); err != nil {
+		t.Fatalf("unable to sign up %v", err)
+		return
+	}
+
+	if err = client.CreateTrack(user.Token, trackName); err != nil {
+		t.Fatalf("unable to create api key %v", err)
+		return
+	}
+
+	var tracks *models.List[models.Track]
+	if tracks, err = client.ListTracks(user.Token); err != nil {
+		t.Fatalf("unable to get track %v", err)
+		return
+	}
+
+	if len(tracks.Items) != 1 {
+		t.Fatalf("expected 1 track, got %d", len(tracks.Items))
+		return
+	}
+
+	if err = client.DeleteTrack(user.Token, trackName); err != nil {
+		t.Fatalf("unable to delete track %v", err)
+		return
+	}
+
+	if tracks, err = client.ListTracks(user.Token); err != nil {
+		t.Fatalf("unable to get track %v", err)
+		return
+	}
+
+	if len(tracks.Items) != 0 {
+		t.Fatalf("expected 0 track, got %d", len(tracks.Items))
+		return
+	}
+}

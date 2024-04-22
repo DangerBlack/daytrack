@@ -131,3 +131,19 @@ func (d *Database) UpdateTrack(userID int64, trackName string, name *string, des
 
 	return nil
 }
+
+func (d *Database) DeleteTrack(userID int64, trackName string) error {
+	_, err := d.db.Exec(`
+		UPDATE tracks
+		SET
+			delete_at = CURRENT_TIMESTAMP
+		WHERE
+			user_id = ?
+			AND name = ?;
+	`, userID, trackName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

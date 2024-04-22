@@ -45,3 +45,7 @@ func (s *Service) UpdateTrack(ctx *gin.Context, userID int64, trackName string, 
 
 	return s.db.UpdateTrack(userID, trackName, utils.EmptyIsNull(track.Name), utils.EmptyIsNull(track.Description), &visibility, &status)
 }
+
+func (s *Service) DeleteTrack(ctx *gin.Context, userID int64, trackName string) error {
+	return s.db.DeleteTrack(userID, trackName)
+}

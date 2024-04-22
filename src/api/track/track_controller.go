@@ -52,6 +52,7 @@ func (c *TrackController) injectAuthenticatedRoutes() {
 		v1.POST("/tracks", c.createTrackRoute())
 		v1.GET("/tracks", c.listTracksRoute())
 		v1.PATCH("/tracks/:track_name", c.updateTracksRoute())
+		v1.DELETE("/tracks/:track_name", c.deleteTrackRoute())
 	}
 }
 
@@ -176,5 +177,37 @@ func (c *TrackController) updateTracksRoute() gin.HandlerFunc {
 		}
 
 		ctx.JSON(200, models.NewSuccess("track updated", ""))
+	}
+}
+
+// @Tags track
+// @Security TokenAuth
+// @Schemes https
+// @Router /v1/tracks/{track_name} [DELETE]
+// @Summary Delete a track
+// @Description Delete a track
+// @Accept json
+// @Param track_name path string true "Track name"
+// @Produce json
+// @Success 201 {object} models.ResponseModel
+func (c *TrackController) deleteTrackRoute() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var err error
+		var userID int64
+
+		if userID, err = utils.GetAuthenticatedUserID(ctx); err != nil {
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to get authenticated user id"))
+			return
+		}
+
+		trackName := ctx.Param("track_name")
+
+		if err = c.track.DeleteTrack(ctx, userID, trackName); err != nil {
+			c.logger(ctx).Err(err).Msg("Error while deleting a track")
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to delete track"))
+			return
+		}
+
+		ctx.JSON(200, models.NewSuccess("track deleted", ""))
 	}
 }
