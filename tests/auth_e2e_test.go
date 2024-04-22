@@ -88,3 +88,35 @@ func TestSignIn(t *testing.T) {
 		return
 	}
 }
+
+// Test try to sign up two user with the same username
+
+func TestSignUpSameUsername(t *testing.T) {
+	t.Parallel()
+
+	var err error
+	username := faker.Faker.Username()
+	email := faker.Faker.Email()
+	email2 := faker.Faker.Email()
+	password := faker.Faker.Password()
+
+	if err := client.SignUp(username, email, password); err != nil {
+		t.Fatalf("unable to sign up %v", err)
+		return
+	}
+
+	if _, err = client.SignIn(email, password); err != nil {
+		t.Fatalf("unable to sign in %v", err)
+		return
+	}
+
+	if err := client.SignUp(username, email2, password); err != nil {
+		t.Fatal("Failed should not be able to sign up with the same username")
+		return
+	}
+
+	if _, err = client.SignIn(email, password); err != nil {
+		t.Fatalf("unable to sign in %v", err)
+		return
+	}
+}
