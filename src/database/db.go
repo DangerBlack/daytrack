@@ -2,10 +2,14 @@ package database
 
 import (
 	"database/sql"
+	"errors"
+	"strings"
 
 	"512b.it/daytrack/src/models"
 	_ "github.com/mattn/go-sqlite3"
 )
+
+var ErrorDuplicate = errors.New("duplicate")
 
 type Database struct {
 	db *sql.DB
@@ -38,7 +42,9 @@ func (d *Database) InitDatabase() {
 			email TEXT NOT NULL,
 			public_key TEXT NOT NULL,
 			salt TEXT NOT NULL,
-			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			UNIQUE(username),
+			UNIQUE(email)
 		);
 	`)
 	if err != nil {
@@ -47,7 +53,7 @@ func (d *Database) InitDatabase() {
 
 	_, err = d.db.Exec(`
 		CREATE TABLE IF NOT EXISTS api_keys (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id INTEGER PRIMARY KEY AUTOINCREMENT, 
 			user_id INTEGER NOT NULL,
 			name TEXT NOT NULL,
 			key TEXT NOT NULL,
@@ -157,4 +163,16 @@ func GetNullVisibility(s *models.TrackVisibility) sql.NullString {
 	}
 
 	return nullString
+}
+
+func ParseError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	if strings.HasPrefix(err.Error(), "UNIQUE constraint failed") {
+		return ErrorDuplicate
+	}
+
+	return err
 }

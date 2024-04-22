@@ -10,7 +10,7 @@ func (d *Database) InsertUser(username, email, publicKey, salt string) (int64, e
 		VALUES (?, ?, ?, ?);
 	`, username, email, publicKey, salt)
 	if err != nil {
-		return 0, err
+		return 0, ParseError(err)
 	}
 
 	id, err := res.LastInsertId()

@@ -1,9 +1,11 @@
 package user
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
+	"512b.it/daytrack/src/database"
 	"512b.it/daytrack/src/models"
 	"512b.it/daytrack/src/utils"
 	"github.com/gin-gonic/gin"
@@ -98,6 +100,8 @@ func (c *UserController) createUserRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var user models.CreateUser
 
+		c.logger(ctx).Info().Msg("Creating a new user")
+
 		if err := ctx.ShouldBindJSON(&user); err != nil {
 			c.logger(ctx).Err(err).Msg("Invalid request")
 			ctx.JSON(400, models.NewError(models.ErrorBadRequest, "Invalid request"))
@@ -112,11 +116,21 @@ func (c *UserController) createUserRoute() gin.HandlerFunc {
 
 		if _, err := c.user.CreateUser(ctx, user.Username, user.Email, user.PublicKey); err != nil {
 			c.logger(ctx).Err(err).Msg("Unable to insert the user")
+
+			if errors.Is(err, database.ErrorDuplicate) {
+				c.logger(ctx).Info().Msg("User not created, fail silently")
+				ctx.JSON(201, models.NewSuccess("User created", ""))
+				return
+			}
+
 			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "Unable to insert the user"))
 			return
 		}
 
 		ctx.JSON(201, models.NewSuccess("User created", ""))
+
+		c.logger(ctx).Info().Msg("User created")
+
 	}
 }
 
