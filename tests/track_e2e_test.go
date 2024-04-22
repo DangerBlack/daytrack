@@ -24,6 +24,25 @@ func TestCreateTrack(t *testing.T) {
 	}
 }
 
+func TestCreateShortTrack(t *testing.T) {
+	t.Parallel()
+
+	var err error
+	var user *client.SignedUser
+
+	if user, err = client.CreateUser(); err != nil {
+		t.Fatalf("unable to sign up %v", err)
+		return
+	}
+
+	for _, name := range []string{"a", "aa", "a a"} {
+		if err = client.CreateTrack(user.Token, name); err == nil {
+			t.Fatalf("track name '%s' should have problem", name)
+			return
+		}
+	}
+}
+
 func TestListTracks(t *testing.T) {
 	t.Parallel()
 
