@@ -31,8 +31,11 @@ export default function App() {
       if(url)
       {
         const api_key = url.split('key=')[1];
-        console.log("storing secret:", api_key)
-        await save_key(api_key);
+        if(api_key)
+        {
+          console.log("storing secret:", api_key)
+          await save_key(api_key);
+        }
       }
     }
     catch(e)
