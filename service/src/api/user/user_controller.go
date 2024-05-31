@@ -1,8 +1,11 @@
 package user
 
 import (
+	_ "embed"
 	"errors"
+	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"512b.it/daytrack/src/database"
@@ -10,6 +13,9 @@ import (
 	"512b.it/daytrack/src/utils"
 	"github.com/gin-gonic/gin"
 )
+
+//go:embed magic_link.html
+var magicLinkTemplate string
 
 type UserController struct {
 	unauthenticatedRoute *gin.RouterGroup
@@ -54,6 +60,8 @@ func (c *UserController) injectUnauthenticatedRoutes() {
 		v1.GET("users/challenge", c.createUserChallenge())
 		v1.POST("users/signup", c.createUserRoute())
 		v1.POST("users/signin", c.signinUserRoute())
+		v1.POST("users/magic-link", c.createMagicLinkRoute())
+		v1.GET("users/magic-link", c.getMagicLinkRoute())
 	}
 }
 
@@ -162,5 +170,72 @@ func (c *UserController) signinUserRoute() gin.HandlerFunc {
 		}
 
 		ctx.JSON(200, token)
+	}
+}
+
+// @Tags user
+// @Schemes https
+// @Router /v1/users/magic-link [POST]
+// @Summary Create a user
+// @Description Create a new user
+// @Accept json
+// @Param request body models.User true "the user body to create"
+// @Produce json
+// @Success 201 {object} models.ResponseModel
+func (c *UserController) createMagicLinkRoute() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var err error
+		var user models.MagicLink
+
+		c.logger(ctx).Info().Msg("Attempting to create a magic link")
+
+		if err := ctx.ShouldBindJSON(&user); err != nil {
+			c.logger(ctx).Err(err).Msg("Invalid request")
+			ctx.JSON(400, models.NewError(models.ErrorBadRequest, "Invalid request"))
+			return
+		}
+
+		if err = c.user.SendMagicLink(ctx, user.Email); err != nil {
+			c.logger(ctx).Err(err).Msg("Unable to send the magic link")
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "Unable to send the magic link"))
+			return
+		}
+
+		ctx.JSON(201, models.NewSuccess("Magic link created", ""))
+
+		c.logger(ctx).Info().Msg("Magic link created")
+	}
+}
+
+// @Tags user
+// @Schemes https
+// @Router /v1/users/magic-link [GET]
+// @Summary Create a user
+// @Description Create a new user
+// @Accept json
+// @Param request body models.User true "the user body to create"
+// @Produce json
+// @Success 201 {object} models.ResponseModel
+func (c *UserController) getMagicLinkRoute() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		c.logger(ctx).Info().Msg("Attempting to create a magic link")
+
+		key := ctx.Query("key")
+
+		println(key)
+		url := "dailytrack://"
+		if c.configuration.Environment == "development" {
+			url = "exp://127.0.0.1:8081/--/"
+		}
+
+		url = fmt.Sprintf("%sauthorize?key=%s", url, key)
+
+		results := strings.ReplaceAll(magicLinkTemplate, "{{.Url}}", url)
+
+		println(results)
+
+		ctx.Data(200, "text/html; charset=utf-8", []byte(results))
+
+		c.logger(ctx).Info().Msg("Magic link retrieved")
 	}
 }

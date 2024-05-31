@@ -27,6 +27,7 @@ type Configuration struct {
 
 	Opaque OpaqueConfig
 	JWT    JWTConfig
+	Mail   Mail
 }
 
 type OpaqueConfig struct {
@@ -39,6 +40,13 @@ type JWTConfig struct {
 	PrivateKey []byte
 
 	AccessTokenDuration time.Duration
+}
+
+type Mail struct {
+	From     string
+	Password string
+	SMTP     string
+	PORT     int
 }
 
 func NewConfiguration() Configuration {
@@ -84,6 +92,12 @@ func NewConfiguration() Configuration {
 			PublicKey:           jwtPubKey,
 			PrivateKey:          jwtPrivKey,
 			AccessTokenDuration: accessTokenDuration,
+		},
+		Mail: Mail{
+			From:     stringOrPanic("MAIL_FROM"),
+			Password: stringOrPanic("MAIL_PASSWORD"),
+			SMTP:     stringOrPanic("MAIL_SMTP_HOST"),
+			PORT:     intOrPanic("MAIL_SMTP_PORT"),
 		},
 	}
 }

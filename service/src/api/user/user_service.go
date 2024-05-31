@@ -86,3 +86,33 @@ func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChalle
 		ExpDate: time.Now().Add(time.Duration(s.configuration.JWT.AccessTokenDuration)),
 	}, nil
 }
+
+func (s *Service) SendMagicLink(ctx context.Context, email string) error {
+	var err error
+	var key *string
+	var userID int64
+	if _, err = s.CreateUser(ctx, "placeholder", email, "~~~"); err != nil {
+		if !errors.Is(err, database.ErrorDuplicate) {
+			return err
+		}
+	}
+
+	name := utils.GenerateRandomString(32)
+
+	if key, err = s.db.InsertAPIKey(userID, name); err != nil {
+		return err
+	}
+
+	url := "https://dailytrack.io"
+	if s.configuration.Environment == "development" {
+		url = "http://10.0.2.2:3000"
+	}
+
+	url = fmt.Sprintf("%s/v1/users/magic-link?key=%s", url, *key)
+
+	if err = models.SendMagicLink(ctx, s.configuration, email, url); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -14,3 +14,7 @@ type CreateUser struct {
 	PublicKey string `json:"public_key" binding:"required" example:"a1b2c3d4e5f6g7h8i9j0"`
 	Salt      string `json:"salt" binding:"required" example:"a1b2c3d4e5f6g7h8i9j0"`
 }
+
+type MagicLink struct {
+	Email string `json:"email" binding:"required,email" example:"test@dailytrack.it"`
+}
