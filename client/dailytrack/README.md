@@ -1,0 +1,5 @@
+# run
+
+```
+npx expo start
+```
