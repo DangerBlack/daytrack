@@ -49,6 +49,27 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: defaultTextSize,
     },
+
+    buttonGrid: {
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      buttonImage: {
+        width: '100%',
+        height: '100%',
+      },
+      fab: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: '#6200EE',
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 5,
+      },
 });
 
 export default styles;
