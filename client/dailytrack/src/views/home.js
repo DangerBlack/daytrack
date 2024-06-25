@@ -1,17 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, FlatList, Text, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect,useCallback } from 'react';
+import { View, TouchableOpacity, FlatList, Text, ActivityIndicator, RefreshControl } from 'react-native';
 // import { Icon } from 'react-native-elements';
 import styles from '../styles/style';
-import { track_url } from '../models/endpoints';
-import { load_key } from '../models/storage';
+import { track_url, event_url } from '../models/endpoints';
+import { load_key, load_username } from '../models/storage';
+import { createStackNavigator } from '@react-navigation/stack';
+import CreateNewTrack from './create_track';
 
+const HomeStack = createStackNavigator();
 
-const ButtonGrid = ({ buttons, onButtonPress }) => {
+const ButtonGrid = ({ buttons, onButtonPress, onButtonLongPress, is_loading, set_is_loading, set_tracks }) => {
     const renderButton = ({ item }) => (
-        <TouchableOpacity style={styles.buttonInGrid} onPress={() => onButtonPress(item.id)}>
+        <TouchableOpacity style={styles.buttonInGrid} onPress={() => onButtonPress(item.id, item.name)} onLongPress={() => onButtonLongPress(item.id)}>
           <Text style={styles.buttonText}>{item.name}</Text>
         </TouchableOpacity>
     );
+
+    const onRefresh = useCallback(() => {
+        load_tracks(set_is_loading, set_tracks).catch(console.error);
+      }, [buttons]);
 
     return (
         <FlatList
@@ -20,6 +27,9 @@ const ButtonGrid = ({ buttons, onButtonPress }) => {
         keyExtractor={item => item.id}
         numColumns={2}
         contentContainerStyle={styles.buttonGrid}
+        refreshControl={
+            <RefreshControl refreshing={is_loading} onRefresh={onRefresh} />
+          }
         />
     );
 };
@@ -47,42 +57,37 @@ async function load_tracks(set_is_loading, set_buttons)
     }
 }
 
-async function add_track(set_is_loading, set_buttons) 
+async function track_event(id, name) 
 {
-    console.log('Adding a track')
-    set_is_loading(true);
     try {
         const api_key = await load_key();
-        const response = await fetch(track_url, {
+        const username = await load_username(api_key);
+        const response = await fetch(`${event_url}/${username}/${name}?key=${api_key}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Key ${api_key}`
-            },
-            body: JSON.stringify({ name: 'lol' }),
         });
-        console.log('Track added')
         const data = await response.json();
         console.log(data);
-
     } catch (error) {
       console.error(error);
-    } finally {
-      set_is_loading(false);
-    }
+    } 
 }
 
-const HomePage = () => {
+const HomePage = ({ navigation }) => {
     const [is_loading, set_is_loading] = useState(false);
     const [tracks, set_tracks] = useState([
     ]);
     
-    const handleButtonPress = (id) => {
-        console.log(`Button ${id} pressed`);
+    const handleButtonPress = async (id, name) => {
+        console.log(`Button ${id} - ${name} pressed`);
+        track_event(id, name).catch(console.error);
+    };
+    
+    const handleButtonLongPress = (id) => {
+        console.log(`Button ${id} loong pressed`);
     };
 
     const handleAddTrack = () => {
-        add_track(set_is_loading, set_tracks).catch(console.error);
+        navigation.navigate('CreateNewTrack');
     };
 
     useEffect(() => 
@@ -91,20 +96,38 @@ const HomePage = () => {
         return
     }, []);
     
-      return (
-        <View style={styles.homeContainer}>
-          {
-            is_loading ?
-            <ActivityIndicator size="large" color="#007BFF" />
-            : <>
-            <ButtonGrid buttons={tracks} onButtonPress={handleButtonPress} />
-                <TouchableOpacity style={styles.fab} onPress={handleAddTrack}>
-                <Text style={styles.buttonText}>+</Text>
-            </TouchableOpacity>
-            </>
-        }
-        </View>
-      );
+    return (
+    <View style={styles.homeContainer}>
+        <ButtonGrid 
+            buttons={tracks} 
+            onButtonPress={handleButtonPress} 
+            onButtonLongPress={handleButtonLongPress}
+            is_loading={is_loading} 
+            set_is_loading={set_is_loading} 
+            set_tracks={set_tracks} 
+        />
+            <TouchableOpacity style={styles.fab} onPress={handleAddTrack}>
+            <Text style={styles.buttonText}>+</Text>
+        </TouchableOpacity>
+    </View>
+    );
 };
 
-export default HomePage;
+const HomePageNav = ({ navigation }) => {
+    return (
+        <HomeStack.Navigator>
+            <HomeStack.Screen
+                name="HomePage"
+                component={HomePage}
+                options={{ headerShown: false }}
+            />
+            <HomeStack.Screen 
+                name="CreateNewTrack" 
+                component={CreateNewTrack} 
+                options={{ title: 'Create new track' }}
+            />
+        </HomeStack.Navigator>
+    );
+};
+
+export default HomePageNav;

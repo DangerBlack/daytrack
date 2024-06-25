@@ -86,6 +86,33 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         elevation: 5,
     },
+
+    tackContainer: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: 'white',
+    },
+    tackLabel: {
+        marginBottom: 8,
+        fontSize: 16,
+        fontWeight: 'bold',
+        fontFamily: 'Roboto',
+        color: secondaryColor,
+    },
+    trackInput: {
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        marginBottom: 20,
+        paddingHorizontal: 10,
+        fontFamily: 'Roboto',
+    },
+    trackPicker: {
+        height: 50,
+        width: '100%',
+        marginBottom: 20,
+        fontFamily: 'Roboto',
+    },
 });
 
 export default styles;
