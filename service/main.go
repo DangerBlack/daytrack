@@ -49,6 +49,7 @@ func main() {
 		apiKey,
 		track,
 		event,
+		db,
 	).Listen()
 
 	if err != nil {

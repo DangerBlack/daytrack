@@ -9,6 +9,7 @@ import (
 	"512b.it/daytrack/src/api/middleware"
 	"512b.it/daytrack/src/api/track"
 	"512b.it/daytrack/src/api/user"
+	"512b.it/daytrack/src/database"
 	"512b.it/daytrack/src/models"
 	"512b.it/daytrack/src/utils"
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,7 @@ type Server struct {
 	apiKey        *api_key.Service
 	track         *track.Service
 	event         *event.Service
+	db            *database.Database
 }
 
 func NewServer(
@@ -34,6 +36,7 @@ func NewServer(
 	apiKey *api_key.Service,
 	track *track.Service,
 	event *event.Service,
+	db *database.Database,
 ) *Server {
 	engine := gin.New()
 
@@ -49,6 +52,7 @@ func NewServer(
 		apiKey:        apiKey,
 		track:         track,
 		event:         event,
+		db:            db,
 	}
 
 	server.setupRoutes()
@@ -58,7 +62,7 @@ func NewServer(
 func (s *Server) setupRoutes() {
 	authenticatedRoute := s.engine.Group("/")
 	unauthenticatedRoute := s.engine.Group("/")
-	authenticatedRoute.Use(middleware.AuthUserGuards(s.configuration))
+	authenticatedRoute.Use(middleware.AuthUserGuards(s.configuration, s.db))
 
 	unauthenticatedRoute.GET("/health", s.createHealthRoute())
 
