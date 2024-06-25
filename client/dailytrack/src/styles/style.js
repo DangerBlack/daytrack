@@ -50,15 +50,31 @@ const styles = StyleSheet.create({
         fontSize: defaultTextSize,
     },
 
+    homeContainer: {
+        flex: 1,
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     buttonGrid: {
         justifyContent: 'center',
         alignItems: 'center',
-      },
-      buttonImage: {
+    },
+    buttonInGrid: {
+        backgroundColor: '#007BFF',
+        width: 100,
+        height: 100,
+        margin: 10,
+        borderRadius: 10,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    buttonImage: {
         width: '100%',
         height: '100%',
-      },
-      fab: {
+    },
+    fab: {
         position: 'absolute',
         bottom: 20,
         right: 20,
@@ -69,7 +85,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 5,
-      },
+    },
 });
 
 export default styles;
