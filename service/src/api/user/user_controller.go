@@ -66,9 +66,10 @@ func (c *UserController) injectUnauthenticatedRoutes() {
 }
 
 func (c *UserController) injectAuthenticatedRoutes() {
-	// v1 := c.authenticatedRoute.Group("v1")
-	// {
-	// }
+	v1 := c.authenticatedRoute.Group("v1")
+	{
+		v1.GET("users/self", c.getUserRoute())
+	}
 }
 
 // @Tags user
@@ -237,5 +238,36 @@ func (c *UserController) getMagicLinkRoute() gin.HandlerFunc {
 		ctx.Data(200, "text/html; charset=utf-8", []byte(results))
 
 		c.logger(ctx).Info().Msg("Magic link retrieved")
+	}
+}
+
+// @Tags user
+// @Schemes https
+// @Router /v1/users/self [GET]
+// @Summary Get user info
+// @Description Get user info
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.User
+func (c *UserController) getUserRoute() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+
+		var err error
+		var userID int64
+		var user *models.User
+
+		if userID, err = utils.GetAuthenticatedUserID(ctx); err != nil {
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to get authenticated user id"))
+			return
+		}
+
+		c.logger(ctx).Info().Msgf("Attempting to get user info %d", userID)
+		if user, err = c.user.GetUser(ctx, userID); err != nil {
+			c.logger(ctx).Err(err).Msg("Unable to get the user")
+			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "Unable to get the user"))
+			return
+		}
+
+		ctx.JSON(200, user)
 	}
 }

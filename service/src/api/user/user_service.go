@@ -116,3 +116,7 @@ func (s *Service) SendMagicLink(ctx context.Context, email string) error {
 
 	return nil
 }
+
+func (s *Service) GetUser(ctx context.Context, id int64) (*models.User, error) {
+	return s.db.GetUserByID(id)
+}
