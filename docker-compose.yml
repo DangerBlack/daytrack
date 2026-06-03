@@ -18,6 +18,7 @@ services:
       - JWT_ACCESS_TOKEN_DURATION=15m
       - RATE_LIMIT_BURST=${RATE_LIMIT_BURST:-3}
       - RATE_LIMIT_INTERVAL=${RATE_LIMIT_INTERVAL:-1s}
+      - DISABLE_SIGNUP=${DISABLE_SIGNUP:-false}
     volumes:
       - daytrack_data:/data
 

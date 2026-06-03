@@ -52,7 +52,11 @@ func (c *UserController) injectUnauthenticatedRoutes() {
 	v1 := c.unauthenticatedRoute.Group("v1")
 	{
 		v1.GET("users/challenge", c.createUserChallenge())
-		v1.POST("users/signup", c.createUserRoute())
+		if c.configuration.SignupDisabled {
+			v1.POST("users/signup", c.signupDisabledRoute())
+		} else {
+			v1.POST("users/signup", c.createUserRoute())
+		}
 		v1.POST("users/signin", c.signinUserRoute())
 	}
 }
@@ -131,6 +135,12 @@ func (c *UserController) createUserRoute() gin.HandlerFunc {
 
 		c.logger(ctx).Info().Msg("User created")
 
+	}
+}
+
+func (c *UserController) signupDisabledRoute() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.JSON(403, models.NewError(models.ErrorSignupDisabled, "signup is disabled by the administrator"))
 	}
 }
 

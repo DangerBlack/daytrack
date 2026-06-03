@@ -29,6 +29,7 @@ type Configuration struct {
 	JWT                 JWTConfig
 	RateLimitBurst      int
 	RateLimitInterval   time.Duration
+	SignupDisabled      bool
 }
 
 type OpaqueConfig struct {
@@ -107,6 +108,7 @@ func NewConfiguration() Configuration {
 		},
 		RateLimitBurst:    getEnvInt("RATE_LIMIT_BURST", 3),
 		RateLimitInterval: rateLimitInterval,
+		SignupDisabled:    getEnv("DISABLE_SIGNUP", "false") == "true",
 	}
 }
 
