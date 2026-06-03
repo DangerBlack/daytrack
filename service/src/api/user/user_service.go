@@ -40,6 +40,14 @@ func (s *Service) GenerateSalt(ctx context.Context, saltNonce, email string) str
 	return b64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
+func (s *Service) GetUserSalt(ctx context.Context, email string) (string, error) {
+	user, err := s.db.GetUserByEmail(email)
+	if err != nil {
+		return "", err
+	}
+	return user.Salt, nil
+}
+
 func (s *Service) CreateUser(ctx context.Context, username, email, password string) (int64, error) {
 	salt := s.GenerateSalt(context.Background(), s.configuration.Opaque.SaltNonce, email)
 

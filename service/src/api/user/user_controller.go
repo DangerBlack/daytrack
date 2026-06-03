@@ -82,7 +82,10 @@ func (c *UserController) createUserChallenge() gin.HandlerFunc {
 
 		challenge := strconv.FormatInt(utils.SecureRandom(int64(c.configuration.Opaque.ChallengeRange)), 10) + "-" + strconv.FormatInt(time.Now().Unix(), 10)
 
-		salt := c.user.GenerateSalt(ctx, c.configuration.Opaque.SaltNonce, email)
+		salt, err := c.user.GetUserSalt(ctx, email)
+		if err != nil {
+			salt = c.user.GenerateSalt(ctx, c.configuration.Opaque.SaltNonce, email)
+		}
 
 		ctx.JSON(200, models.Challenge{
 			Salt:      salt,
