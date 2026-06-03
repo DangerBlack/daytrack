@@ -1,0 +1,370 @@
+.dashboard {
+  max-width: 800px;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.header-row h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text);
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  background: var(--surface);
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+
+.btn:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.btn-danger {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--danger);
+}
+
+.btn-danger:hover {
+  background: rgba(251, 113, 133, 0.1);
+  border-color: var(--danger);
+}
+
+.btn-sm {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.btn-quick {
+  background: rgba(52, 211, 153, 0.1);
+  border-color: var(--success);
+  color: var(--success);
+  font-weight: 600;
+}
+
+.btn-quick:hover {
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
+}
+
+.create-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.form-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin: 0;
+  width: 100%;
+}
+
+.create-form input {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.track-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.track-card.expanded {
+  border-color: var(--primary);
+}
+
+.track-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+}
+
+.track-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.days-since {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 0.15rem 0.4rem;
+  background: rgba(148, 163, 184, 0.08);
+  border-radius: 4px;
+}
+
+.track-header strong {
+  color: var(--text);
+}
+
+.badge {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--text-muted);
+}
+
+.badge.public_r, .badge.public_rw {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success);
+}
+
+.track-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.track-detail {
+  padding: 0 1rem 1rem;
+}
+
+.track-event-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.quantity-input {
+  width: 60px;
+  padding: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  text-align: center;
+}
+
+.datetime-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+.datetime-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+}
+
+.btn-active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.btn-active:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.event-list h4 {
+  margin: 0 0 0.5rem;
+  color: var(--text-muted);
+}
+
+.event-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  font-size: 0.85rem;
+}
+
+.event-date {
+  color: var(--text-muted);
+}
+
+.event-qty {
+  font-weight: bold;
+  color: var(--success);
+}
+
+.key-value {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--bg);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2rem;
+}
+
+.usage-section {
+  margin-top: 1rem;
+}
+
+.usage-section h3 {
+  margin: 0 0 0.25rem;
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
+.usage-section h4 {
+  margin: 1rem 0 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.usage-subtitle {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+}
+
+.code-block {
+  background: var(--bg);
+  color: var(--success);
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0 0 0.5rem;
+  border: 1px solid var(--border);
+  font-family: monospace;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 90%;
+}
+
+.modal h3 {
+  margin: 0 0 0.5rem;
+  color: var(--text);
+}
+
+.modal-warning {
+  color: var(--warning);
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
+  padding: 0.5rem;
+  background: rgba(251, 191, 36, 0.08);
+  border-radius: 6px;
+  border: 1px solid rgba(251, 191, 36, 0.15);
+  line-height: 1.5;
+}
+
+.modal-key-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.modal-key {
+  flex: 1;
+  font-size: 0.75rem;
+  color: var(--secondary);
+  background: var(--bg);
+  padding: 0.5rem;
+  border-radius: 6px;
+  word-break: break-all;
+  line-height: 1.4;
+  font-family: monospace;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .track-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .track-event-form {
+    flex-wrap: wrap;
+  }
+
+  .datetime-input {
+    min-width: 100%;
+  }
+
+  .code-block {
+    font-size: 0.7rem;
+    padding: 0.5rem;
+  }
+}

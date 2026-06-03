@@ -8,8 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
 
 func InitLogger() {
@@ -38,14 +36,12 @@ type LogContent struct {
 	Method  string
 	Status  int
 	Message string
-	Span    ddtrace.Span
 }
 
 func LoggerMiddleware(config LoggerConfiguration) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		path := ctx.Request.URL.Path
 		start := time.Now()
-		span, _ := tracer.SpanFromContext(ctx.Request.Context())
 
 		ctx.Next()
 
@@ -65,7 +61,6 @@ func LoggerMiddleware(config LoggerConfiguration) gin.HandlerFunc {
 			Latency: time.Since(start),
 			Method:  ctx.Request.Method,
 			Status:  ctx.Writer.Status(),
-			Span:    span,
 			Message: message,
 		})
 	}
@@ -92,37 +87,21 @@ func logRequest(content *LogContent) {
 		Str("method", content.Method).
 		Str("path", content.Path).
 		Dur("time", content.Latency).
-		Uint64("dd.trace_id", content.Span.Context().TraceID()).
-		Uint64("dd.span_id", content.Span.Context().SpanID()).
 		Int("status", content.Status).
 		Msg(content.Message)
 }
 
 type ContextLogger = func(ctx context.Context) *zerolog.Logger
 
-// returns zerolog.Logger with binded datadog trace context
 func Logger(ctx context.Context) *zerolog.Logger {
 	logger := log.Logger
-
-	return getLoggerWithTracing(&logger)(ctx)
+	return &logger
 }
 
 func InitServiceLogger(loggerTag string) ContextLogger {
 	logger := log.With().Str("TAG", loggerTag).Logger()
 
-	return getLoggerWithTracing(&logger)
-}
-
-func getLoggerWithTracing(logger *zerolog.Logger) ContextLogger {
 	return func(ctx context.Context) *zerolog.Logger {
-		span, isSpanFound := tracer.SpanFromContext(ctx)
-
-		logger := logger.With().Logger()
-
-		if isSpanFound {
-			logger = logger.With().Uint64("dd.trace_id", span.Context().TraceID()).Uint64("dd.span_id", span.Context().SpanID()).Logger()
-		}
-
 		return &logger
 	}
 }

@@ -5,7 +5,6 @@ import (
 	"crypto/ed25519"
 	"crypto/sha256"
 	"encoding/base64"
-	b64 "encoding/base64"
 	"errors"
 	"fmt"
 	"time"
@@ -37,7 +36,15 @@ func (s *Service) GenerateSalt(ctx context.Context, saltNonce, email string) str
 	h := sha256.New()
 	h.Write([]byte(email + saltNonce))
 
-	return b64.StdEncoding.EncodeToString(h.Sum(nil))
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+
+func (s *Service) GetUserSalt(ctx context.Context, email string) (string, error) {
+	user, err := s.db.GetUserByEmail(email)
+	if err != nil {
+		return "", err
+	}
+	return user.Salt, nil
 }
 
 func (s *Service) CreateUser(ctx context.Context, username, email, password string) (int64, error) {
@@ -56,33 +63,49 @@ func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChalle
 	var user *models.User
 	var signedChallenge []byte
 	var publicKey []byte
+	var userID string
+	valid := true
+	found := true
 
-	if user, err = s.db.GetUserByEmail(email); err != nil {
-		return nil, err
+	user, err = s.db.GetUserByEmail(email)
+	if err != nil {
+		found = false
+		userID = "0"
+	} else {
+		userID = fmt.Sprintf("%d", user.ID)
 	}
 
 	if signedChallenge, err = base64.StdEncoding.DecodeString(signedChallengeBase64); err != nil {
-		utils.FakeOpaqueOperation()
 		return nil, err
 	}
 
-	if publicKey, err = b64.StdEncoding.DecodeString(user.PublicKey); err != nil {
-		utils.FakeOpaqueOperation()
-		return nil, err
-	}
-
-	if !ed25519.Verify(ed25519.PublicKey(publicKey), []byte(challenge), []byte(signedChallenge)) {
+	if !found {
+		fakeSeed := sha256.Sum256([]byte(email + "__timing_mask__"))
+		fakeKey := ed25519.NewKeyFromSeed(fakeSeed[:])
+		ed25519.Verify(fakeKey.Public().(ed25519.PublicKey), []byte(challenge), signedChallenge)
 		return nil, ErrorOpaqueChallengeVerificationFailed
 	}
 
-	var token string
-	if token, err = models.GenerateAccessJWT(s.configuration.JWT.PrivateKey, time.Duration(s.configuration.JWT.AccessTokenDuration), fmt.Sprintf("%d", user.ID)); err != nil {
-		utils.FakeOpaqueOperation()
+	if publicKey, err = base64.StdEncoding.DecodeString(user.PublicKey); err != nil {
 		return nil, err
 	}
 
+	if !ed25519.Verify(ed25519.PublicKey(publicKey), []byte(challenge), signedChallenge) {
+		valid = false
+	}
+
+	var token string
+	if token, err = models.GenerateAccessJWT(s.configuration.JWT.PrivateKey, time.Duration(s.configuration.JWT.AccessTokenDuration), userID); err != nil {
+		return nil, err
+	}
+
+	if !valid {
+		return nil, ErrorOpaqueChallengeVerificationFailed
+	}
+
 	return &models.Token{
-		Token:   token,
-		ExpDate: time.Now().Add(time.Duration(s.configuration.JWT.AccessTokenDuration)),
+		Token:    token,
+		ExpDate:  time.Now().Add(time.Duration(s.configuration.JWT.AccessTokenDuration)),
+		Username: user.Username,
 	}, nil
 }

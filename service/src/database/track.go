@@ -23,31 +23,6 @@ func (d *Database) InsertTrack(userID int64, name string, description string, vi
 	return &id, nil
 }
 
-func (d *Database) GetTrackByID(id int64) (*models.Track, error) {
-	track := models.Track{
-		ID: id,
-	}
-
-	err := d.db.QueryRow(`
-		SELECT
-			user_id,
-			name,
-			description,
-			visibility,
-			status,
-			created_at,
-			delete_at
-		FROM tracks
-		WHERE id = ?;
-	`, id).Scan(&track.UserID, &track.Name, &track.Description, &track.Visibility, &track.Status, &track.CreatedAt, &track.DeleteAt)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &track, nil
-}
-
 func (d *Database) GetTrackByUserIDAndName(userID int64, trackName string) (*models.Track, error) {
 	track := models.Track{
 		UserID: userID,
@@ -103,6 +78,10 @@ func (d *Database) ListTracks(userID int64) ([]models.Track, error) {
 		tracks = append(tracks, track)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return tracks, nil
 }
 
@@ -112,8 +91,8 @@ func (d *Database) UpdateTrack(userID int64, trackName string, name *string, des
 		SET
 			name =  COALESCE(:name, name),
 			description = COALESCE(:description, description),
-			visibility = COALESCE(:visibility, visibility)
-			-- status = COALESCE(:status, status)
+			visibility = COALESCE(:visibility, visibility),
+			status = COALESCE(:status, status)
 		WHERE
 			user_id = :user_id
 			AND name = :track_name;
@@ -121,7 +100,7 @@ func (d *Database) UpdateTrack(userID int64, trackName string, name *string, des
 		sql.Named("name", GetNullString(name)),
 		sql.Named("description", GetNullString(description)),
 		sql.Named("visibility", GetNullVisibility(visibility)),
-		//sql.Named("status", GetNullStatus(status)),
+		sql.Named("status", GetNullStatus(status)),
 		sql.Named("user_id", userID),
 		sql.Named("track_name", trackName),
 	)

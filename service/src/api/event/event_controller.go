@@ -50,13 +50,12 @@ func new(
 func (c *EventController) injectUnauthenticatedRoutes() {
 	v1 := c.unauthenticatedRoute.Group("v1", middleware.AuthApiKeyGuards(c.configuration, c.event.db))
 	{
-		v1.POST("/events/:username/:track_name", c.createEventRoute())
+		v1.POST("/events/:username/:track_name", utils.RateLimit(c.configuration.RateLimitBurst, c.configuration.RateLimitInterval), c.createEventRoute())
 		v1.GET("/events/:username/:track_name", c.listEventRoute())
 	}
 }
 
-func (c *EventController) injectAuthenticatedRoutes() {
-}
+func (c *EventController) injectAuthenticatedRoutes() {}
 
 // @Tags event
 // @Security ApiKeyAuth
@@ -164,6 +163,12 @@ func (c *EventController) listEventRoute() gin.HandlerFunc {
 		case models.ListByDay:
 			if events, err = c.event.ListEventsByDays(userID, username, trackName, after); err != nil {
 				c.logger(ctx).Err(err).Msg("Failed to list events grouped by day")
+				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
+				return
+			}
+		case models.ListByMonth:
+			if events, err = c.event.ListEventsByMonth(userID, username, trackName, after); err != nil {
+				c.logger(ctx).Err(err).Msg("Failed to list events grouped by month")
 				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
 				return
 			}

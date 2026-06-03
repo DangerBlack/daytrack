@@ -27,84 +27,73 @@ func New(db *database.Database, configuration models.Configuration) *Service {
 	}
 }
 
-func (s *Service) CreateEvent(userID int64, username string, trackName string, quantity int, createdAt *time.Time) error {
+type resolvedTarget struct {
+	track *models.Track
+}
+
+func (s *Service) resolveTrack(userID int64, username string, trackName string, requireWrite bool) (*resolvedTarget, error) {
 	var err error
 	var user, user2 *models.User
 	var track *models.Track
 
 	if user, err = s.db.GetUserByID(userID); err != nil {
-		return err
+		return nil, err
 	}
 
 	if user2, err = s.db.GetUserByName(username); err != nil {
-		return err
+		return nil, err
 	}
 
 	if track, err = s.db.GetTrackByUserIDAndName(user2.ID, trackName); err != nil {
+		return nil, err
+	}
+
+	isOwner := user.Username == username
+	canRead := isOwner || track.Visibility == models.TrackVisibilityPublicRead || track.Visibility == models.TrackVisibilityPublicWrite
+	canWrite := isOwner || track.Visibility == models.TrackVisibilityPublicWrite
+
+	if requireWrite && !canWrite {
+		return nil, ErrorEventCannotBeCalledByYou
+	}
+	if !requireWrite && !canRead {
+		return nil, ErrorEventCannotBeCalledByYou
+	}
+
+	return &resolvedTarget{track: track}, nil
+}
+
+func (s *Service) CreateEvent(userID int64, username string, trackName string, quantity int, createdAt *time.Time) error {
+	target, err := s.resolveTrack(userID, username, trackName, true)
+	if err != nil {
 		return err
 	}
 
-	if user.Username != username && track.Visibility != models.TrackVisibilityPublicWrite {
-		return ErrorEventCannotBeCalledByYou
+	return s.db.InsertEvent(target.track.ID, quantity, createdAt)
+}
+
+func (s *Service) ListEventsByMonth(userID int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
+	target, err := s.resolveTrack(userID, username, trackName, false)
+	if err != nil {
+		return nil, err
 	}
 
-	return s.db.InsertEvent(track.ID, quantity, createdAt)
+	return s.db.GetEventsByTrackIDGroupByMonth(target.track.ID, after)
 }
 
 func (s *Service) ListEventsByDays(userID int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
-	var err error
-	var user, user2 *models.User
-	var track *models.Track
-	var events []models.Day
-
-	if user, err = s.db.GetUserByID(userID); err != nil {
+	target, err := s.resolveTrack(userID, username, trackName, false)
+	if err != nil {
 		return nil, err
 	}
 
-	if user2, err = s.db.GetUserByName(username); err != nil {
-		return nil, err
-	}
-
-	if track, err = s.db.GetTrackByUserIDAndName(user2.ID, trackName); err != nil {
-		return nil, err
-	}
-
-	if user.Username != username && (track.Visibility != models.TrackVisibilityPublicRead && track.Visibility != models.TrackVisibilityPublicWrite) {
-		return nil, ErrorEventCannotBeCalledByYou
-	}
-
-	if events, err = s.db.GetEventsByTrackIDGroupByDay(track.ID, after); err != nil {
-		return nil, err
-	}
-
-	return events, nil
+	return s.db.GetEventsByTrackIDGroupByDay(target.track.ID, after)
 }
 
 func (s *Service) ListEvents(userID int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
-	var err error
-	var user, user2 *models.User
-	var track *models.Track
-	var events []models.Day
-
-	if user, err = s.db.GetUserByID(userID); err != nil {
+	target, err := s.resolveTrack(userID, username, trackName, false)
+	if err != nil {
 		return nil, err
 	}
 
-	if user2, err = s.db.GetUserByName(username); err != nil {
-		return nil, err
-	}
-
-	if track, err = s.db.GetTrackByUserIDAndName(user2.ID, trackName); err != nil {
-		return nil, err
-	}
-
-	if user.Username != username && (track.Visibility != models.TrackVisibilityPublicRead && track.Visibility != models.TrackVisibilityPublicWrite) {
-		return nil, ErrorEventCannotBeCalledByYou
-	}
-
-	if events, err = s.db.GetEventsByTrackID(track.ID, after); err != nil {
-		return nil, err
-	}
-
-	return events, nil
+	return s.db.GetEventsByTrackID(target.track.ID, after)
 }

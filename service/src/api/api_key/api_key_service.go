@@ -1,14 +1,10 @@
 package api_key
 
 import (
-	"errors"
-
 	"512b.it/daytrack/src/database"
 	"512b.it/daytrack/src/models"
 	"512b.it/daytrack/src/utils"
 )
-
-var ErrorOpaqueChallengeVerificationFailed error = errors.New("opaque challenge verification failed")
 
 type Service struct {
 	db            *database.Database
@@ -45,6 +41,6 @@ func (s *Service) ListApiKeys(userID int64) ([]models.ApiKey, error) {
 	return keys, nil
 }
 
-func (s *Service) DeleteApiKey(userID int64, key string) error {
-	return s.db.DeleteAPIKey(userID, key)
+func (s *Service) DeleteApiKey(userID int64, keyID int64) error {
+	return s.db.DeleteAPIKey(userID, keyID)
 }

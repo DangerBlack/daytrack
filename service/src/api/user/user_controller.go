@@ -52,16 +52,16 @@ func (c *UserController) injectUnauthenticatedRoutes() {
 	v1 := c.unauthenticatedRoute.Group("v1")
 	{
 		v1.GET("users/challenge", c.createUserChallenge())
-		v1.POST("users/signup", c.createUserRoute())
+		if c.configuration.SignupDisabled {
+			v1.POST("users/signup", c.signupDisabledRoute())
+		} else {
+			v1.POST("users/signup", c.createUserRoute())
+		}
 		v1.POST("users/signin", c.signinUserRoute())
 	}
 }
 
-func (c *UserController) injectAuthenticatedRoutes() {
-	// v1 := c.authenticatedRoute.Group("v1")
-	// {
-	// }
-}
+func (c *UserController) injectAuthenticatedRoutes() {}
 
 // @Tags user
 // @Schemes https
@@ -78,7 +78,10 @@ func (c *UserController) createUserChallenge() gin.HandlerFunc {
 
 		challenge := strconv.FormatInt(utils.SecureRandom(int64(c.configuration.Opaque.ChallengeRange)), 10) + "-" + strconv.FormatInt(time.Now().Unix(), 10)
 
-		salt := c.user.GenerateSalt(ctx, c.configuration.Opaque.SaltNonce, email)
+		salt, err := c.user.GetUserSalt(ctx, email)
+		if err != nil {
+			salt = c.user.GenerateSalt(ctx, c.configuration.Opaque.SaltNonce, email)
+		}
 
 		ctx.JSON(200, models.Challenge{
 			Salt:      salt,
@@ -131,6 +134,12 @@ func (c *UserController) createUserRoute() gin.HandlerFunc {
 
 		c.logger(ctx).Info().Msg("User created")
 
+	}
+}
+
+func (c *UserController) signupDisabledRoute() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.JSON(403, models.NewError(models.ErrorSignupDisabled, "signup is disabled by the administrator"))
 	}
 }
 
