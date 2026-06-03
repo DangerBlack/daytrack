@@ -10,8 +10,6 @@ import (
 	"math/big"
 )
 
-const FAKE_OPAQUE_SLEEP_MILLISECONDS = 500
-
 func GenerateRandomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, length)

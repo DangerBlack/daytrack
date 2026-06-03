@@ -55,8 +55,7 @@ func (c *EventController) injectUnauthenticatedRoutes() {
 	}
 }
 
-func (c *EventController) injectAuthenticatedRoutes() {
-}
+func (c *EventController) injectAuthenticatedRoutes() {}
 
 // @Tags event
 // @Security ApiKeyAuth

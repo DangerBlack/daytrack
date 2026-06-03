@@ -146,6 +146,11 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
     daysSince = diff;
   }
 
+  function invalidateEvents() {
+    queryClient.invalidateQueries({ queryKey: ['events', track.name] });
+    queryClient.invalidateQueries({ queryKey: ['events-raw', track.name] });
+  }
+
   async function handleTrack(e) {
     e.preventDefault();
     if (!apiKey) return;
@@ -153,8 +158,7 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
     try {
       const dt = eventDate ? new Date(eventDate) : null;
       await trackEvent(apiKey, user?.username, track.name, quantity, dt);
-      queryClient.invalidateQueries({ queryKey: ['events', track.name] });
-      queryClient.invalidateQueries({ queryKey: ['events-raw', track.name] });
+      invalidateEvents();
     } catch (err) {
       alert('Failed to register event: ' + err.message);
     } finally {
@@ -167,8 +171,7 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
     setQuickLoading(true);
     try {
       await trackEvent(apiKey, user?.username, track.name, 1, new Date());
-      queryClient.invalidateQueries({ queryKey: ['events', track.name] });
-      queryClient.invalidateQueries({ queryKey: ['events-raw', track.name] });
+      invalidateEvents();
     } catch (err) {
       alert('Failed to register event: ' + err.message);
     } finally {
@@ -188,14 +191,14 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
         </div>
         <div className="track-actions">
           {!isExpanded && (
-            <button onClick={e => { e.stopPropagation(); handleQuickTrack(); }} className="btn btn-sm btn-quick" disabled={quickLoading || !apiKey}>
+            <button onClick={handleQuickTrack} className="btn btn-sm btn-quick" disabled={quickLoading || !apiKey}>
               {quickLoading ? '...' : '+1'}
             </button>
           )}
           <button onClick={onToggle} className="btn btn-sm">
             {isExpanded ? 'Show less' : 'Show more'}
           </button>
-          <button onClick={e => { e.stopPropagation(); setDeleteConfirm(true); }} className="btn btn-danger btn-sm">
+          <button onClick={() => setDeleteConfirm(true)} className="btn btn-danger btn-sm">
             Delete
           </button>
         </div>

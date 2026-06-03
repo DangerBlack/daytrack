@@ -104,37 +104,6 @@ func (d *Database) InitDatabase() {
 		panic(err)
 	}
 
-	_, err = d.db.Exec(`
-		CREATE TABLE IF NOT EXISTS actions (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			track_id INTEGER NOT NULL,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			action_type TEXT NOT NULL,
-			action_body TEXT,
-			condition TEXT,
-			should_notify BOOLEAN DEFAULT FALSE,
-			FOREIGN KEY(track_id) REFERENCES tracks(id) ON DELETE CASCADE
-		);
-	`)
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = d.db.Exec(`
-		CREATE TABLE IF NOT EXISTS history (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			event_id INTEGER NOT NULL,
-			action_id INTEGER NOT NULL,
-			api_key_id INTEGER NOT NULL,
-			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			FOREIGN KEY(event_id) REFERENCES events(id) ON DELETE CASCADE,
-			FOREIGN KEY(action_id) REFERENCES actions(id) ON DELETE CASCADE,
-			FOREIGN KEY(api_key_id) REFERENCES api_keys(id) ON DELETE CASCADE
-		);
-	`)
-	if err != nil {
-		panic(err)
-	}
 }
 
 func GetNullString(s *string) sql.NullString {

@@ -203,18 +203,6 @@
   cursor: pointer;
 }
 
-.view-toggle {
-  display: flex;
-  gap: 0.25rem;
-  margin-bottom: 0.75rem;
-}
-
-.view-toggle .btn-active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: #fff;
-}
-
 .btn-active {
   background: var(--primary);
   border-color: var(--primary);

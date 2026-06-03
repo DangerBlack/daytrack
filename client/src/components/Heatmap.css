@@ -62,15 +62,14 @@
   cursor: default;
 }
 
-.heatmap-cell.empty {
-  background: transparent;
+.heatmap-cell.empty,
+.heatmap-cell.level-0 {
   outline: 1px solid #475569;
   outline-offset: -1px;
 }
 
-.heatmap-cell.level-0 {
-  outline: 1px solid #475569;
-  outline-offset: -1px;
+.heatmap-cell.empty {
+  background: transparent;
 }
 
 .heatmap-cell.level-1 {
@@ -105,15 +104,14 @@
   height: 11px;
 }
 
-.heatmap-legend .heatmap-cell.empty {
-  background: transparent;
+.heatmap-legend .heatmap-cell.empty,
+.heatmap-legend .heatmap-cell.level-0 {
   outline: 1px solid #475569;
   outline-offset: -1px;
 }
 
-.heatmap-legend .heatmap-cell.level-0 {
-  outline: 1px solid #475569;
-  outline-offset: -1px;
+.heatmap-legend .heatmap-cell.empty {
+  background: transparent;
 }
 
 .heatmap-legend .heatmap-cell.level-1 {

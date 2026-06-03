@@ -61,11 +61,7 @@ func (c *UserController) injectUnauthenticatedRoutes() {
 	}
 }
 
-func (c *UserController) injectAuthenticatedRoutes() {
-	// v1 := c.authenticatedRoute.Group("v1")
-	// {
-	// }
-}
+func (c *UserController) injectAuthenticatedRoutes() {}
 
 // @Tags user
 // @Schemes https

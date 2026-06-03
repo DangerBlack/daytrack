@@ -60,6 +60,10 @@ func (d *Database) GetEventsByTrackIDGroupByMonth(trackID int64, after *time.Tim
 		events = append(events, event)
 	}
 
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return events, nil
 }
 
@@ -97,6 +101,10 @@ func (d *Database) GetEventsByTrackIDGroupByDay(trackID int64, after *time.Time)
 		events = append(events, event)
 	}
 
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return events, nil
 }
 
@@ -126,6 +134,10 @@ func (d *Database) GetEventsByTrackID(trackID int64, after *time.Time) ([]models
 		}
 
 		events = append(events, event)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return events, nil

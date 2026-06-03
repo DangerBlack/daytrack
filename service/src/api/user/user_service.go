@@ -5,7 +5,6 @@ import (
 	"crypto/ed25519"
 	"crypto/sha256"
 	"encoding/base64"
-	b64 "encoding/base64"
 	"errors"
 	"fmt"
 	"time"
@@ -37,7 +36,7 @@ func (s *Service) GenerateSalt(ctx context.Context, saltNonce, email string) str
 	h := sha256.New()
 	h.Write([]byte(email + saltNonce))
 
-	return b64.StdEncoding.EncodeToString(h.Sum(nil))
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
 func (s *Service) GetUserSalt(ctx context.Context, email string) (string, error) {
@@ -87,7 +86,7 @@ func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChalle
 		return nil, ErrorOpaqueChallengeVerificationFailed
 	}
 
-	if publicKey, err = b64.StdEncoding.DecodeString(user.PublicKey); err != nil {
+	if publicKey, err = base64.StdEncoding.DecodeString(user.PublicKey); err != nil {
 		return nil, err
 	}
 

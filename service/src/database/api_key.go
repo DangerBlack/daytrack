@@ -71,6 +71,10 @@ func (d *Database) ListAPIKeys(userID int64) ([]models.ApiKey, error) {
 		apiKeys = append(apiKeys, apiKey)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return apiKeys, nil
 }
 
