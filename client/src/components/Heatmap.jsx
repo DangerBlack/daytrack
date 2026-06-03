@@ -71,14 +71,15 @@ export default function Heatmap({ days = [] }) {
         </div>
         <div className="heatmap-weeks">
           <div className="heatmap-month-row">
-            {weeks.map((_, wi) => {
-              const ml = monthLabels.find(m => m.index === wi);
-              return (
-                <div key={wi} className="heatmap-month-cell">
-                  {ml ? ml.label : ''}
-                </div>
-              );
-            })}
+            {monthLabels.map((ml, i) => (
+              <span
+                key={i}
+                className="heatmap-month-label"
+                style={{ left: `${ml.index * 16}px` }}
+              >
+                {ml.label}
+              </span>
+            ))}
           </div>
           <div className="heatmap-cols">
             {weeks.map((week, wi) => (
@@ -86,7 +87,7 @@ export default function Heatmap({ days = [] }) {
                 {week.map((cell, di) => (
                   <div
                     key={di}
-                    className={`heatmap-cell level-${cell.level}`}
+                    className={`heatmap-cell${cell.level === 0 ? ' empty' : ''} level-${cell.level}`}
                     title={`${cell.date}: ${cell.qty}`}
                   />
                 ))}

@@ -83,7 +83,7 @@ export default function DashboardPage() {
       )}
 
       {tracks.length === 0 && !showCreate && (
-        <p className="empty">No tracks yet. Create one to start tracking!</p>
+        <p className="empty-state">No tracks yet. Create one to start tracking!</p>
       )}
 
       <div className="track-list">
@@ -204,7 +204,7 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
           {viewMode === 'list' && (
             <div className="event-list">
               <h4>Recent Events</h4>
-              {rawEvents.length === 0 && <p className="empty">No events yet.</p>}
+              {rawEvents.length === 0 && <p className="empty-state">No events yet.</p>}
               {rawEvents.map((ev, i) => (
                 <div key={i} className="event-row">
                   <span className="event-date">{new Date(ev.date).toLocaleString()}</span>

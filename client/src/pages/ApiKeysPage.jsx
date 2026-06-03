@@ -135,7 +135,7 @@ export default function ApiKeysPage() {
                 </div>
               </div>
             ))}
-            {keys.length === 0 && <p className="empty">No API keys yet.</p>}
+            {keys.length === 0 && <p className="empty-state">No API keys yet.</p>}
           </div>
 
           {deleteConfirm && (

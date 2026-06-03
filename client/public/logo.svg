@@ -1,0 +1,18 @@
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" fill="none">
+
+ <g>
+  <title>Layer 1</title>
+  <rect x="0.88889" y="3.1111" id="svg_1" rx="56" fill="#0f172a" height="256" width="256"/>
+  <circle id="svg_2" fill="#334155" r="6" cy="190" cx="60"/>
+  <circle id="svg_3" fill="#475569" r="6" cy="167.22221" cx="69.00006"/>
+  <circle id="svg_4" fill="#64748b" r="6" cy="131.55559" cx="98.44449"/>
+  <circle id="svg_5" fill="#8b5cf6" r="7" cy="122.22221" cx="118.55561"/>
+  <circle id="svg_6" fill="#8b5cf6" r="6.99999" cy="120.11106" cx="181.7777"/>
+  <circle id="svg_7" fill="#8b5cf6" r="7" cy="102.99997" cx="195.22219"/>
+  <circle id="svg_8" fill="#06b6d4" r="10" cy="80" cx="205"/>
+  <circle id="svg_9" opacity="0.9" fill="#f8fafc" r="5" cy="80" cx="205"/>
+  <circle id="svg_10" fill="#64748b" r="6" cy="147.11109" cx="81.55566"/>
+  <circle id="svg_11" fill="#8b5cf6" r="7" cy="131.99996" cx="140.33331"/>
+  <circle id="svg_13" fill="#8b5cf6" r="6.99998" cy="133.44434" cx="163.55554"/>
+ </g>
+</svg>

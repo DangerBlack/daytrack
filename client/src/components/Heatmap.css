@@ -31,17 +31,16 @@
 }
 
 .heatmap-month-row {
-  display: flex;
-  gap: 3px;
-  margin-bottom: 2px;
+  position: relative;
   height: 14px;
+  margin-bottom: 2px;
 }
 
-.heatmap-month-cell {
-  width: 13px;
-  font-size: 9px;
+.heatmap-month-label {
+  position: absolute;
+  top: 0;
+  font-size: 10px;
   color: var(--text-muted);
-  line-height: 14px;
   white-space: nowrap;
 }
 
@@ -60,8 +59,18 @@
   width: 13px;
   height: 13px;
   border-radius: 3px;
-  background: #263548;
   cursor: default;
+}
+
+.heatmap-cell.empty {
+  background: transparent;
+  outline: 1px solid #475569;
+  outline-offset: -1px;
+}
+
+.heatmap-cell.level-0 {
+  outline: 1px solid #475569;
+  outline-offset: -1px;
 }
 
 .heatmap-cell.level-1 {
@@ -91,6 +100,34 @@
 }
 
 .heatmap-legend .heatmap-cell {
-  width: 11px;
+  width: 0;
+  min-width: 11px;
   height: 11px;
+}
+
+.heatmap-legend .heatmap-cell.empty {
+  background: transparent;
+  outline: 1px solid #475569;
+  outline-offset: -1px;
+}
+
+.heatmap-legend .heatmap-cell.level-0 {
+  outline: 1px solid #475569;
+  outline-offset: -1px;
+}
+
+.heatmap-legend .heatmap-cell.level-1 {
+  background: #a78bfa;
+}
+
+.heatmap-legend .heatmap-cell.level-2 {
+  background: #8b5cf6;
+}
+
+.heatmap-legend .heatmap-cell.level-3 {
+  background: #6d28d9;
+}
+
+.heatmap-legend .heatmap-cell.level-4 {
+  background: #4c1d95;
 }

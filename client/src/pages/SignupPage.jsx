@@ -37,7 +37,10 @@ export default function SignupPage() {
   return (
     <div className="auth-page">
       <form className="auth-form" onSubmit={handleSubmit}>
-        <h1>Daytrack</h1>
+        <div className="auth-logo">
+          <img src="/logo.svg" alt="Daytrack" />
+          <h1>Daytrack</h1>
+        </div>
         <p className="subtitle">Create your account</p>
 
         {error && <div className="error">{error}</div>}

@@ -1,5 +1,9 @@
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 
+function isAuthPath(path) {
+  return path.startsWith('/v1/users/challenge') || path.startsWith('/v1/users/signin') || path.startsWith('/v1/users/signup');
+}
+
 async function request(path, options = {}) {
   const url = `${BASE_URL}${path}`;
   const config = {
@@ -13,6 +17,14 @@ async function request(path, options = {}) {
   }
 
   const res = await fetch(url, config);
+
+  if (res.status === 401 && !isAuthPath(path)) {
+    localStorage.removeItem('daytrack_token');
+    localStorage.removeItem('daytrack_user');
+    window.location.href = '/login';
+    return;
+  }
+
   const text = await res.text();
 
   let data;

@@ -17,7 +17,10 @@ export default function Layout() {
   return (
     <div className="layout">
       <aside className="sidebar">
-        <h2>Daytrack</h2>
+        <div className="sidebar-brand">
+          <img src="/logo.svg" alt="Daytrack" className="sidebar-logo" />
+          <h2>Daytrack</h2>
+        </div>
         <nav>
           <Link to="/">Dashboard</Link>
           <Link to="/api-keys">API Keys</Link>

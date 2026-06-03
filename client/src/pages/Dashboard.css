@@ -229,7 +229,7 @@
   font-family: monospace;
 }
 
-.empty {
+.empty-state {
   color: var(--text-muted);
   text-align: center;
   padding: 2rem;
