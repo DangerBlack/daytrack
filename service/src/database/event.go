@@ -37,7 +37,7 @@ func (d *Database) GetEventsByTrackIDGroupByMonth(trackID int64, after *time.Tim
 			AND 
 				(:after is NULL OR created_at > :after)
 		GROUP BY strftime('%Y-%m', created_at)
-		ORDER BY created_at DESC;
+		ORDER BY 1 DESC;
 	`, sql.Named("track_id", trackID), sql.Named("after", after))
 	if err != nil {
 		return nil, err

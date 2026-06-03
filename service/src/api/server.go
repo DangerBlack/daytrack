@@ -67,13 +67,14 @@ func NewServer(
 }
 
 func corsMiddleware(configuration models.Configuration) gin.HandlerFunc {
-	allowedOrigin := "*"
 	if configuration.Environment == models.Production {
-		allowedOrigin = ""
+		return func(ctx *gin.Context) {
+			ctx.Next()
+		}
 	}
 
 	return func(ctx *gin.Context) {
-		ctx.Header("Access-Control-Allow-Origin", allowedOrigin)
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 		ctx.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization")
 		ctx.Header("Access-Control-Max-Age", "86400")
