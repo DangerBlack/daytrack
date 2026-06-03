@@ -63,6 +63,19 @@
   font-size: 0.8rem;
 }
 
+.btn-quick {
+  background: rgba(52, 211, 153, 0.1);
+  border-color: var(--success);
+  color: var(--success);
+  font-weight: 600;
+}
+
+.btn-quick:hover {
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
+}
+
 .create-form {
   display: flex;
   flex-wrap: wrap;
@@ -114,14 +127,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  cursor: pointer;
-  user-select: none;
 }
 
-.track-header > div {
+.track-info {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.days-since {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 0.15rem 0.4rem;
+  background: rgba(148, 163, 184, 0.08);
+  border-radius: 4px;
 }
 
 .track-header strong {

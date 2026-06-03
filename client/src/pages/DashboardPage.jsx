@@ -120,7 +120,7 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
   const [quantity, setQuantity] = useState(1);
   const [eventDate, setEventDate] = useState(() => new Date().toISOString().slice(0, 16));
   const [eventLoading, setEventLoading] = useState(false);
-  const [viewMode, setViewMode] = useState('heatmap');
+  const [quickLoading, setQuickLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const queryClient = useQueryClient();
 
@@ -133,15 +133,17 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
   const { data: rawEventsData } = useQuery({
     queryKey: ['events-raw', track.name],
     queryFn: () => listEvents(apiKey, user?.username, track.name, 'raw'),
-    enabled: !!apiKey && isExpanded && viewMode === 'list',
+    enabled: !!apiKey && isExpanded,
   });
 
   const days = eventsData?.items || [];
   const rawEvents = rawEventsData?.items || [];
 
-  function toLocalISO(d) {
-    const pad = (n) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  let daysSince = null;
+  if (days.length > 0) {
+    const lastDate = new Date(days[0].date);
+    const diff = Math.floor((Date.now() - lastDate.getTime()) / 86400000);
+    daysSince = diff;
   }
 
   async function handleTrack(e) {
@@ -160,14 +162,39 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
     }
   }
 
+  async function handleQuickTrack() {
+    if (!apiKey) return;
+    setQuickLoading(true);
+    try {
+      await trackEvent(apiKey, user?.username, track.name, 1, new Date());
+      queryClient.invalidateQueries({ queryKey: ['events', track.name] });
+      queryClient.invalidateQueries({ queryKey: ['events-raw', track.name] });
+    } catch (err) {
+      alert('Failed to register event: ' + err.message);
+    } finally {
+      setQuickLoading(false);
+    }
+  }
+
   return (
     <div className={`track-card ${isExpanded ? 'expanded' : ''}`}>
-      <div className="track-header" onClick={onToggle}>
-        <div>
+      <div className="track-header">
+        <div className="track-info">
           <strong>{track.name}</strong>
           <span className={`badge ${track.visibility}`}>{track.visibility}</span>
+          {daysSince !== null && (
+            <span className="days-since">{daysSince === 0 ? 'today' : `${daysSince}d ago`}</span>
+          )}
         </div>
         <div className="track-actions">
+          {!isExpanded && (
+            <button onClick={e => { e.stopPropagation(); handleQuickTrack(); }} className="btn btn-sm btn-quick" disabled={quickLoading || !apiKey}>
+              {quickLoading ? '...' : '+1'}
+            </button>
+          )}
+          <button onClick={onToggle} className="btn btn-sm">
+            {isExpanded ? 'Show less' : 'Show more'}
+          </button>
           <button onClick={e => { e.stopPropagation(); setDeleteConfirm(true); }} className="btn btn-danger btn-sm">
             Delete
           </button>
@@ -216,33 +243,16 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
             </button>
           </form>
 
-          <div className="view-toggle">
-            <button
-              className={`btn btn-sm ${viewMode === 'heatmap' ? 'btn-active' : ''}`}
-              onClick={e => { e.stopPropagation(); setViewMode('heatmap'); }}
-            >
-              Heatmap
-            </button>
-            <button
-              className={`btn btn-sm ${viewMode === 'list' ? 'btn-active' : ''}`}
-              onClick={e => { e.stopPropagation(); setViewMode('list'); }}
-            >
-              Event List
-            </button>
+          <div className="event-list">
+            <h4>Recent Events</h4>
+            {rawEvents.length === 0 && <p className="empty-state">No events yet.</p>}
+            {rawEvents.slice(0, 20).map((ev, i) => (
+              <div key={i} className="event-row">
+                <span className="event-date">{new Date(ev.date).toLocaleString()}</span>
+                <span className="event-qty">+{ev.quantity}</span>
+              </div>
+            ))}
           </div>
-
-          {viewMode === 'list' && (
-            <div className="event-list">
-              <h4>Recent Events</h4>
-              {rawEvents.length === 0 && <p className="empty-state">No events yet.</p>}
-              {rawEvents.map((ev, i) => (
-                <div key={i} className="event-row">
-                  <span className="event-date">{new Date(ev.date).toLocaleString()}</span>
-                  <span className="event-qty">+{ev.quantity}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </div>
