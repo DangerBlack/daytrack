@@ -2,6 +2,7 @@ package api_key
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	"512b.it/daytrack/src/models"
@@ -74,7 +75,17 @@ func (c *ApiKeyController) createApiKeyRoute() gin.HandlerFunc {
 		var key *string
 		var userID int64
 
-		name := ctx.DefaultQuery("name", "default")
+		name := strings.TrimSpace(ctx.DefaultQuery("name", "default"))
+
+		if len(name) < 3 || len(name) > 255 {
+			ctx.JSON(400, models.NewError(models.ErrorBadRequest, "name must be between 3 and 255 characters"))
+			return
+		}
+
+		if !models.IsValidTrackName(name) {
+			ctx.JSON(400, models.NewError(models.ErrorBadRequest, "name can only contain letters, numbers, hyphens and underscores"))
+			return
+		}
 
 		if userID, err = utils.GetAuthenticatedUserID(ctx); err != nil {
 			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to get authenticated user id"))

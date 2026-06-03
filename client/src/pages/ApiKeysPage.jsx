@@ -11,6 +11,7 @@ export default function ApiKeysPage() {
   const [name, setName] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const [newKeyData, setNewKeyData] = useState(null);
+  const [error, setError] = useState('');
   const [copied, setCopied] = useState(null);
   const [tab, setTab] = useState('keys');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -29,6 +30,10 @@ export default function ApiKeysPage() {
       setNewKeyData(data);
       setName('');
       setShowCreate(false);
+      setError('');
+    },
+    onError: (err) => {
+      setError(err.message);
     },
   });
 
@@ -83,9 +88,14 @@ export default function ApiKeysPage() {
                 type="text"
                 placeholder="Key name"
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={e => { setName(e.target.value); setError(''); }}
                 required
+                minLength={3}
+                maxLength={255}
+                pattern="[a-zA-Z0-9_-]+"
+                title="Letters, numbers, underscores and hyphens only (3-255 characters)"
               />
+              {error && <p className="form-error">{error}</p>}
               <button type="submit" className="btn btn-primary" disabled={createMutation.isPending}>
                 Create
               </button>

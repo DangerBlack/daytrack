@@ -74,6 +74,13 @@
   border-radius: 8px;
 }
 
+.form-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin: 0;
+  width: 100%;
+}
+
 .create-form input {
   flex: 1;
   min-width: 120px;

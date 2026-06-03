@@ -13,17 +13,17 @@ export default function DashboardPage() {
   const user = getUser();
   const [newTrackName, setNewTrackName] = useState('');
   const [showCreate, setShowCreate] = useState(false);
+  const [trackError, setTrackError] = useState('');
   const [expandedTrack, setExpandedTrack] = useState(null);
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem(API_KEY_STORAGE));
+  const [apiKey, setApiKey] = useState(null);
   const initRef = useRef(false);
 
   useEffect(() => {
-    if (initRef.current || localStorage.getItem(API_KEY_STORAGE)) return;
+    if (initRef.current) return;
     initRef.current = true;
     (async () => {
       try {
         const key = await createApiKey('web-client', token);
-        localStorage.setItem(API_KEY_STORAGE, key.key);
         setApiKey(key.key);
       } catch {}
     })();
@@ -42,6 +42,10 @@ export default function DashboardPage() {
       queryClient.invalidateQueries({ queryKey: ['tracks'] });
       setNewTrackName('');
       setShowCreate(false);
+      setTrackError('');
+    },
+    onError: (err) => {
+      setTrackError(err.message);
     },
   });
 
@@ -68,11 +72,14 @@ export default function DashboardPage() {
             type="text"
             placeholder="Track name"
             value={newTrackName}
-            onChange={e => setNewTrackName(e.target.value)}
+            onChange={e => { setNewTrackName(e.target.value); setTrackError(''); }}
             required
             minLength={3}
+            maxLength={255}
             pattern="[a-zA-Z0-9_-]+"
+            title="Letters, numbers, underscores and hyphens only (3-255 characters)"
           />
+          {trackError && <p className="form-error">{trackError}</p>}
           <button type="submit" className="btn btn-primary" disabled={createMutation.isPending}>
             Create
           </button>
