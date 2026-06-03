@@ -25,8 +25,10 @@ type Configuration struct {
 	HTTPPort    int
 	DBPath      string
 
-	Opaque OpaqueConfig
-	JWT    JWTConfig
+	Opaque              OpaqueConfig
+	JWT                 JWTConfig
+	RateLimitBurst      int
+	RateLimitInterval   time.Duration
 }
 
 type OpaqueConfig struct {
@@ -84,6 +86,11 @@ func NewConfiguration() Configuration {
 		jwtPubKey = jwtPrivKey.Public().(ed25519.PublicKey)
 	}
 
+	rateLimitInterval, err := time.ParseDuration(getEnv("RATE_LIMIT_INTERVAL", "1s"))
+	if err != nil {
+		rateLimitInterval = time.Second
+	}
+
 	return Configuration{
 		Environment: envType,
 		HTTPHost:    getEnv("HTTP_HOST", "localhost"),
@@ -98,6 +105,8 @@ func NewConfiguration() Configuration {
 			PrivateKey:          jwtPrivKey,
 			AccessTokenDuration: accessTokenDuration,
 		},
+		RateLimitBurst:    getEnvInt("RATE_LIMIT_BURST", 3),
+		RateLimitInterval: rateLimitInterval,
 	}
 }
 

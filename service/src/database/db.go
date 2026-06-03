@@ -3,8 +3,6 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"512b.it/daytrack/src/models"
@@ -20,11 +18,6 @@ type Database struct {
 func NewDatabase(dbPath string) *Database {
 	if dbPath == "" {
 		dbPath = "./archive/database.db"
-	}
-
-	dir := filepath.Dir(dbPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		panic(err)
 	}
 
 	db, err := sql.Open("sqlite3", dbPath+"?_journal_mode=WAL&_busy_timeout=5000")

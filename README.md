@@ -91,7 +91,7 @@ daytrack/
 │   │   │   ├── track/         # Track CRUD
 │   │   │   └── user/          # Signup/signin (OPAQUE)
 │   │   ├── database/
-│   │   │   ├── db.go          # SQLite init (WAL mode, auto-create dir)
+│   │   │   ├── db.go          # SQLite init (WAL mode)
 │   │   │   ├── event.go
 │   │   │   ├── track.go
 │   │   │   ├── api_key.go

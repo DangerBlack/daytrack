@@ -16,6 +16,8 @@ services:
       - OPAQUE_SALT_NONCE=${OPAQUE_SALT_NONCE:-change-me}
       - OPAQUE_CHALLENGE_RANGE=${OPAQUE_CHALLENGE_RANGE:-100000}
       - JWT_ACCESS_TOKEN_DURATION=15m
+      - RATE_LIMIT_BURST=${RATE_LIMIT_BURST:-3}
+      - RATE_LIMIT_INTERVAL=${RATE_LIMIT_INTERVAL:-1s}
     volumes:
       - daytrack_data:/data
 
