@@ -49,7 +49,7 @@ func NewServer(
 
 	engine.Use(corsMiddleware())
 	engine.Use(bodyLimitMiddleware())
-
+	engine.Use(RateLimit(60, 10, time.Second))
 	engine.Use(gin.Recovery())
 
 	server := &Server{

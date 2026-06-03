@@ -65,6 +65,7 @@
 
 .create-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
   padding: 1rem;
@@ -75,6 +76,7 @@
 
 .create-form input {
   flex: 1;
+  min-width: 120px;
   padding: 0.5rem;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -331,4 +333,24 @@
   gap: 0.5rem;
   justify-content: flex-end;
   margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .track-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .track-event-form {
+    flex-wrap: wrap;
+  }
+
+  .datetime-input {
+    min-width: 100%;
+  }
+
+  .code-block {
+    font-size: 0.7rem;
+    padding: 0.5rem;
+  }
 }

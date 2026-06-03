@@ -108,6 +108,7 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
   const [eventDate, setEventDate] = useState(() => new Date().toISOString().slice(0, 16));
   const [eventLoading, setEventLoading] = useState(false);
   const [viewMode, setViewMode] = useState('heatmap');
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: eventsData } = useQuery({
@@ -154,11 +155,27 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
           <span className={`badge ${track.visibility}`}>{track.visibility}</span>
         </div>
         <div className="track-actions">
-          <button onClick={e => { e.stopPropagation(); onDelete(); }} className="btn btn-danger btn-sm">
+          <button onClick={e => { e.stopPropagation(); setDeleteConfirm(true); }} className="btn btn-danger btn-sm">
             Delete
           </button>
         </div>
       </div>
+
+      {deleteConfirm && (
+        <div className="modal-overlay" onClick={() => setDeleteConfirm(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3>Delete Track</h3>
+            <p className="modal-warning">
+              Are you sure you want to delete <strong>{track.name}</strong>?<br />
+              All events for this track will be lost. This cannot be undone.
+            </p>
+            <div className="modal-actions">
+              <button className="btn" onClick={() => setDeleteConfirm(false)}>Cancel</button>
+              <button className="btn btn-danger" onClick={() => { setDeleteConfirm(false); onDelete(); }}>Yes, delete it</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="track-heatmap">
         <Heatmap days={days} />
