@@ -50,7 +50,7 @@ func new(
 func (c *EventController) injectUnauthenticatedRoutes() {
 	v1 := c.unauthenticatedRoute.Group("v1", middleware.AuthApiKeyGuards(c.configuration, c.event.db))
 	{
-		v1.POST("/events/:username/:track_name", c.createEventRoute())
+		v1.POST("/events/:username/:track_name", utils.RateLimit(3, time.Second), c.createEventRoute())
 		v1.GET("/events/:username/:track_name", c.listEventRoute())
 	}
 }

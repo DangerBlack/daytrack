@@ -56,12 +56,26 @@ func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChalle
 	var user *models.User
 	var signedChallenge []byte
 	var publicKey []byte
+	var userID string
+	valid := true
+	found := true
 
-	if user, err = s.db.GetUserByEmail(email); err != nil {
-		return nil, err
+	user, err = s.db.GetUserByEmail(email)
+	if err != nil {
+		found = false
+		userID = "0"
+	} else {
+		userID = fmt.Sprintf("%d", user.ID)
 	}
 
 	if signedChallenge, err = base64.StdEncoding.DecodeString(signedChallengeBase64); err != nil {
+		return nil, err
+	}
+
+	if !found {
+		fakeSeed := sha256.Sum256([]byte(email + "__timing_mask__"))
+		fakeKey := ed25519.NewKeyFromSeed(fakeSeed[:])
+		ed25519.Verify(fakeKey.Public().(ed25519.PublicKey), []byte(challenge), signedChallenge)
 		return nil, err
 	}
 
@@ -69,13 +83,17 @@ func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChalle
 		return nil, err
 	}
 
-	if !ed25519.Verify(ed25519.PublicKey(publicKey), []byte(challenge), []byte(signedChallenge)) {
-		return nil, ErrorOpaqueChallengeVerificationFailed
+	if !ed25519.Verify(ed25519.PublicKey(publicKey), []byte(challenge), signedChallenge) {
+		valid = false
 	}
 
 	var token string
-	if token, err = models.GenerateAccessJWT(s.configuration.JWT.PrivateKey, time.Duration(s.configuration.JWT.AccessTokenDuration), fmt.Sprintf("%d", user.ID)); err != nil {
+	if token, err = models.GenerateAccessJWT(s.configuration.JWT.PrivateKey, time.Duration(s.configuration.JWT.AccessTokenDuration), userID); err != nil {
 		return nil, err
+	}
+
+	if !valid {
+		return nil, ErrorOpaqueChallengeVerificationFailed
 	}
 
 	return &models.Token{

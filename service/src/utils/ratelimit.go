@@ -1,10 +1,9 @@
-package api
+package utils
 
 import (
 	"sync"
 	"time"
 
-	"512b.it/daytrack/src/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,15 +15,13 @@ type visitor struct {
 type RateLimiter struct {
 	mu       sync.Mutex
 	visitors map[string]*visitor
-	rate     int           // max requests per interval
-	burst    int           // max burst
-	interval time.Duration // refill interval
+	burst    int
+	interval time.Duration
 }
 
-func NewRateLimiter(rate, burst int, interval time.Duration) *RateLimiter {
+func NewRateLimiter(burst int, interval time.Duration) *RateLimiter {
 	rl := &RateLimiter{
 		visitors: make(map[string]*visitor),
-		rate:     rate,
 		burst:    burst,
 		interval: interval,
 	}
@@ -75,12 +72,12 @@ func (rl *RateLimiter) allow(key string) bool {
 	return true
 }
 
-func RateLimit(rate, burst int, interval time.Duration) gin.HandlerFunc {
-	rl := NewRateLimiter(rate, burst, interval)
+func RateLimit(burst int, interval time.Duration) gin.HandlerFunc {
+	rl := NewRateLimiter(burst, interval)
 	return func(ctx *gin.Context) {
 		key := ctx.ClientIP()
 		if !rl.allow(key) {
-			ctx.JSON(429, models.NewError(models.ErrorTooManyRequests, "too many requests"))
+			ctx.JSON(429, gin.H{"error": "too many requests"})
 			ctx.Abort()
 			return
 		}
