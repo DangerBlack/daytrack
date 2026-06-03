@@ -20,6 +20,12 @@ type RateLimiter struct {
 }
 
 func NewRateLimiter(burst int, interval time.Duration) *RateLimiter {
+	if burst <= 0 {
+		burst = 1
+	}
+	if interval <= 0 {
+		interval = time.Second
+	}
 	rl := &RateLimiter{
 		visitors: make(map[string]*visitor),
 		burst:    burst,

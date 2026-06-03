@@ -98,7 +98,7 @@ func NewConfiguration() Configuration {
 		HTTPPort:    getEnvInt("HTTP_PORT", 3000),
 		DBPath:      getEnv("DB_PATH", "./archive/database.db"),
 		Opaque: OpaqueConfig{
-			SaltNonce:      getEnv("OPAQUE_SALT_NONCE", "default-salt-nonce"),
+			SaltNonce:      getEnv("OPAQUE_SALT_NONCE", "change-me"),
 			ChallengeRange: getEnvInt("OPAQUE_CHALLENGE_RANGE", 100000),
 		},
 		JWT: JWTConfig{

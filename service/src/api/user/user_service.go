@@ -76,7 +76,7 @@ func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChalle
 		fakeSeed := sha256.Sum256([]byte(email + "__timing_mask__"))
 		fakeKey := ed25519.NewKeyFromSeed(fakeSeed[:])
 		ed25519.Verify(fakeKey.Public().(ed25519.PublicKey), []byte(challenge), signedChallenge)
-		return nil, err
+		return nil, ErrorOpaqueChallengeVerificationFailed
 	}
 
 	if publicKey, err = b64.StdEncoding.DecodeString(user.PublicKey); err != nil {
