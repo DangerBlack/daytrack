@@ -45,6 +45,6 @@ func (s *Service) ListApiKeys(userID int64) ([]models.ApiKey, error) {
 	return keys, nil
 }
 
-func (s *Service) DeleteApiKey(userID int64, key string) error {
-	return s.db.DeleteAPIKey(userID, key)
+func (s *Service) DeleteApiKey(userID int64, keyID int64) error {
+	return s.db.DeleteAPIKey(userID, keyID)
 }

@@ -167,6 +167,12 @@ func (c *EventController) listEventRoute() gin.HandlerFunc {
 				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
 				return
 			}
+		case models.ListByMonth:
+			if events, err = c.event.ListEventsByMonth(userID, username, trackName, after); err != nil {
+				c.logger(ctx).Err(err).Msg("Failed to list events grouped by month")
+				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
+				return
+			}
 		case models.ListByRaw:
 			if events, err = c.event.ListEvents(userID, username, trackName, after); err != nil {
 				c.logger(ctx).Err(err).Msg("Failed to list events raws")

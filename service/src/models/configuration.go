@@ -1,8 +1,7 @@
 package models
 
 import (
-	"errors"
-	"fmt"
+	"crypto/ed25519"
 	"os"
 	"strconv"
 	"strings"
@@ -24,6 +23,7 @@ type Configuration struct {
 	Environment EnvironmentType
 	HTTPHost    string
 	HTTPPort    int
+	DBPath      string
 
 	Opaque OpaqueConfig
 	JWT    JWTConfig
@@ -35,50 +35,63 @@ type OpaqueConfig struct {
 }
 
 type JWTConfig struct {
-	PublicKey  []byte
-	PrivateKey []byte
+	PublicKey  ed25519.PublicKey
+	PrivateKey ed25519.PrivateKey
 
 	AccessTokenDuration time.Duration
 }
 
 func NewConfiguration() Configuration {
-	err := godotenv.Load()
-	if err != nil {
-		panic(err)
+	_ = godotenv.Load()
+
+	env := getEnv("ENVIRONMENT", "development")
+	envType := Development
+	if env == "production" {
+		envType = Production
 	}
 
-	accessTokenDuration, err := time.ParseDuration(stringOrPanic("JWT_ACCESS_TOKEN_DURATION"))
+	accessTokenDuration, err := time.ParseDuration(getEnv("JWT_ACCESS_TOKEN_DURATION", "15m"))
 	if err != nil {
-		panic(err)
+		accessTokenDuration = 15 * time.Minute
 	}
 
-	var jwtPubKey []byte
-	var jwtPrivKey []byte
+	var jwtPubKey ed25519.PublicKey
+	var jwtPrivKey ed25519.PrivateKey
 
-	encodedJWTPubKey := stringOrPanic("JWT_PUBLIC_KEY")
-	encodedJWTPrivKey := stringOrPanic("JWT_PRIVATE_KEY")
+	encodedJWTPubKey := getEnv("JWT_PUBLIC_KEY", "")
+	encodedJWTPrivKey := getEnv("JWT_PRIVATE_KEY", "")
 
 	encodedJWTPubKey = strings.Replace(encodedJWTPubKey, `\n`, "\n", -1)
 	encodedJWTPrivKey = strings.Replace(encodedJWTPrivKey, `\n`, "\n", -1)
 
 	if encodedJWTPubKey != "" && encodedJWTPrivKey != "" {
-		jwtPubKey, jwtPrivKey, err = utils.PEMDecodeKeyPair([]byte(encodedJWTPubKey), []byte(encodedJWTPrivKey))
-	} else {
-		log.Warn().Msg("Unable to read the keypair form env, generating new one")
-		panic(fmt.Errorf("unable to read the keypair form env, generating new one"))
+		var pubKeyBytes, privKeyBytes []byte
+		pubKeyBytes, privKeyBytes, err = utils.PEMDecodeKeyPair([]byte(encodedJWTPubKey), []byte(encodedJWTPrivKey))
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to decode JWT key pair, generating ephemeral keys")
+		} else {
+			jwtPubKey = pubKeyBytes
+			jwtPrivKey = privKeyBytes
+		}
 	}
 
-	if err != nil {
-		panic(err)
+	if jwtPrivKey == nil {
+		log.Warn().Msg("No valid JWT key pair found, generating ephemeral keys")
+		_, jwtPrivKey, err = ed25519.GenerateKey(nil)
+		if err != nil {
+			panic(err)
+		}
+		jwtPubKey = jwtPrivKey.Public().(ed25519.PublicKey)
 	}
 
 	return Configuration{
-		Environment: Development,
-		HTTPHost:    stringOrPanic("HTTP_HOST"),
-		HTTPPort:    intOrPanic("HTTP_PORT"),
+		Environment: envType,
+		HTTPHost:    getEnv("HTTP_HOST", "localhost"),
+		HTTPPort:    getEnvInt("HTTP_PORT", 3000),
+		DBPath:      getEnv("DB_PATH", "./archive/database.db"),
 		Opaque: OpaqueConfig{
-			SaltNonce:      stringOrPanic("OPAQUE_SALT_NONCE"),
-			ChallengeRange: intOrPanic("OPAQUE_CHALLENGE_RANGE"),
+			SaltNonce:      getEnv("OPAQUE_SALT_NONCE", "default-salt-nonce"),
+			ChallengeRange: getEnvInt("OPAQUE_CHALLENGE_RANGE", 100000),
 		},
 		JWT: JWTConfig{
 			PublicKey:           jwtPubKey,
@@ -88,27 +101,23 @@ func NewConfiguration() Configuration {
 	}
 }
 
-func stringOrPanic(key string) string {
-	var result, found = os.LookupEnv(key)
-
-	if !found {
-		panic(errors.New("configuration value not set for key: " + key))
+func getEnv(key, fallback string) string {
+	if val, ok := os.LookupEnv(key); ok && val != "" {
+		return val
 	}
-
-	return result
+	return fallback
 }
 
-func intOrPanic(key string) int {
-	var result, found = os.LookupEnv(key)
-
-	if !found {
-		panic(errors.New("configuration value not set for key: " + key))
+func getEnvInt(key string, fallback int) int {
+	val, ok := os.LookupEnv(key)
+	if !ok || val == "" {
+		return fallback
 	}
-
-	intResult, err := strconv.ParseUint(result, 10, 32)
+	intVal, err := strconv.Atoi(val)
 	if err != nil {
-		panic(errors.New("configuration value for key: " + key + " is not a int"))
+		return fallback
 	}
-
-	return int(intResult)
+	return intVal
 }
+
+

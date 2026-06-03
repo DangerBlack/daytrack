@@ -74,15 +74,15 @@ func (d *Database) ListAPIKeys(userID int64) ([]models.ApiKey, error) {
 	return apiKeys, nil
 }
 
-func (d *Database) DeleteAPIKey(userID int64, key string) error {
+func (d *Database) DeleteAPIKey(userID int64, keyID int64) error {
 	_, err := d.db.Exec(`
 		UPDATE api_keys
 		SET delete_at = CURRENT_TIMESTAMP
 		WHERE 
 			user_id = ?
 		AND
-			key = ?;
-	`, userID, key)
+			id = ?;
+	`, userID, keyID)
 	if err != nil {
 		return err
 	}

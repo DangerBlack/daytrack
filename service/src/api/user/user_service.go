@@ -62,12 +62,10 @@ func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChalle
 	}
 
 	if signedChallenge, err = base64.StdEncoding.DecodeString(signedChallengeBase64); err != nil {
-		utils.FakeOpaqueOperation()
 		return nil, err
 	}
 
 	if publicKey, err = b64.StdEncoding.DecodeString(user.PublicKey); err != nil {
-		utils.FakeOpaqueOperation()
 		return nil, err
 	}
 
@@ -77,12 +75,12 @@ func (s *Service) SigninUser(ctx context.Context, email, challenge, signedChalle
 
 	var token string
 	if token, err = models.GenerateAccessJWT(s.configuration.JWT.PrivateKey, time.Duration(s.configuration.JWT.AccessTokenDuration), fmt.Sprintf("%d", user.ID)); err != nil {
-		utils.FakeOpaqueOperation()
 		return nil, err
 	}
 
 	return &models.Token{
-		Token:   token,
-		ExpDate: time.Now().Add(time.Duration(s.configuration.JWT.AccessTokenDuration)),
+		Token:    token,
+		ExpDate:  time.Now().Add(time.Duration(s.configuration.JWT.AccessTokenDuration)),
+		Username: user.Username,
 	}, nil
 }

@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
-	"time"
 )
 
 const FAKE_OPAQUE_SLEEP_MILLISECONDS = 500
@@ -32,18 +31,6 @@ func SecureRandom(max int64) int64 {
 	}
 
 	return nBig.Int64()
-}
-
-func FakeOpaqueOperation() {
-	var err error
-	var perturbation *big.Int
-	var max *big.Int = big.NewInt(FAKE_OPAQUE_SLEEP_MILLISECONDS)
-
-	if perturbation, err = rand.Int(rand.Reader, max); err != nil {
-		perturbation = max
-	}
-
-	time.Sleep((200.0 + time.Duration(perturbation.Int64())) * time.Millisecond)
 }
 
 // PEMDecodePublicKey decodes an ed25519 PEM encoded with PKIX standard

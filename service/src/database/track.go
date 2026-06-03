@@ -112,8 +112,8 @@ func (d *Database) UpdateTrack(userID int64, trackName string, name *string, des
 		SET
 			name =  COALESCE(:name, name),
 			description = COALESCE(:description, description),
-			visibility = COALESCE(:visibility, visibility)
-			-- status = COALESCE(:status, status)
+			visibility = COALESCE(:visibility, visibility),
+			status = COALESCE(:status, status)
 		WHERE
 			user_id = :user_id
 			AND name = :track_name;
@@ -121,7 +121,7 @@ func (d *Database) UpdateTrack(userID int64, trackName string, name *string, des
 		sql.Named("name", GetNullString(name)),
 		sql.Named("description", GetNullString(description)),
 		sql.Named("visibility", GetNullVisibility(visibility)),
-		//sql.Named("status", GetNullStatus(status)),
+		sql.Named("status", GetNullStatus(status)),
 		sql.Named("user_id", userID),
 		sql.Named("track_name", trackName),
 	)

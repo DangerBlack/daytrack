@@ -9,8 +9,9 @@ type SignIn struct {
 }
 
 type Token struct {
-	Token   string    `json:"token" example:"a1b2c3d4e5f6g7h8i9j0"`
-	ExpDate time.Time `json:"exp_date" example:"2021-01-01T00:00:00Z"`
+	Token    string    `json:"token" example:"a1b2c3d4e5f6g7h8i9j0"`
+	ExpDate  time.Time `json:"exp_date" example:"2021-01-01T00:00:00Z"`
+	Username string    `json:"username" example:"default"`
 }
 
 type Challenge struct {
