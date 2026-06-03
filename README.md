@@ -187,4 +187,4 @@ cd ../service && go build -o daytrack .
 
 ## License
 
-FOSS. Do what you want.
+MIT. See [LICENSE](LICENSE).
