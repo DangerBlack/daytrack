@@ -2,11 +2,14 @@ import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { clearToken, isAuthenticated } from '../api/auth';
 import './Layout.css';
 
+const API_KEY_STORAGE = 'daytrack_api_key';
+
 export default function Layout() {
   const navigate = useNavigate();
 
   function handleLogout() {
     clearToken();
+    localStorage.removeItem(API_KEY_STORAGE);
     navigate('/login');
   }
 

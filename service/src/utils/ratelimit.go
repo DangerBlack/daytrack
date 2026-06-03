@@ -83,7 +83,7 @@ func RateLimit(burst int, interval time.Duration) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		key := ctx.ClientIP()
 		if !rl.allow(key) {
-			ctx.JSON(429, gin.H{"error": "too many requests"})
+			ctx.JSON(429, gin.H{"message": "too many requests"})
 			ctx.Abort()
 			return
 		}

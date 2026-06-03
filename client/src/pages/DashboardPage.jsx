@@ -22,8 +22,14 @@ export default function DashboardPage() {
     if (initRef.current) return;
     initRef.current = true;
     (async () => {
+      const cached = localStorage.getItem(API_KEY_STORAGE);
+      if (cached) {
+        setApiKey(cached);
+        return;
+      }
       try {
         const key = await createApiKey('web-client', token);
+        localStorage.setItem(API_KEY_STORAGE, key.key);
         setApiKey(key.key);
       } catch {}
     })();
