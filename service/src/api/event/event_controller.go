@@ -1,6 +1,7 @@
 package event
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -169,7 +170,11 @@ func (c *EventController) listEventRoute() gin.HandlerFunc {
 
 		if err != nil {
 			c.logger(ctx).Err(err).Msg("Failed to list events")
-			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
+			if errors.Is(err, ErrorEventCannotBeCalledByYou) {
+				ctx.JSON(403, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
+			} else {
+				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
+			}
 			return
 		}
 

@@ -1,6 +1,8 @@
 package api_key
 
 import (
+	"time"
+
 	"512b.it/daytrack/src/database"
 	"512b.it/daytrack/src/models"
 	"512b.it/daytrack/src/utils"
@@ -22,8 +24,19 @@ func New(db *database.Database, configuration models.Configuration) *Service {
 	}
 }
 
-func (s *Service) CreateApiKey(userID int64, name string) (*string, error) {
-	return s.db.InsertAPIKey(userID, name)
+func (s *Service) CreateApiKey(userID int64, name string) (*models.ApiKey, error) {
+	id, key, err := s.db.InsertAPIKey(userID, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.ApiKey{
+		ID:        id,
+		UserID:    userID,
+		Name:      name,
+		Key:       key,
+		CreatedAt: time.Now(),
+	}, nil
 }
 
 func (s *Service) ListApiKeys(userID int64) ([]models.ApiKey, error) {

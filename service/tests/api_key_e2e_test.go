@@ -97,7 +97,7 @@ func TestDeleteApiKey(t *testing.T) {
 		return
 	}
 
-	if err = client.DeleteApiKey(user.Token, apiKey.Key); err != nil {
+	if err = client.DeleteApiKey(user.Token, apiKey.ID); err != nil {
 		t.Fatalf("unable to delete api key %v", err)
 		return
 	}

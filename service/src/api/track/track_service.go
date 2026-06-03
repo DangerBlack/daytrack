@@ -32,18 +32,20 @@ func (s *Service) ListTracks(ctx *gin.Context, userID int64) ([]models.Track, er
 }
 
 func (s *Service) UpdateTrack(ctx *gin.Context, userID int64, trackName string, track models.Track) error {
-	var visibility models.TrackVisibility
-	var status models.TrackStatus
+	var visibility *models.TrackVisibility
+	var status *models.TrackStatus
 
 	if track.Visibility != "" {
-		visibility = track.Visibility
+		v := track.Visibility
+		visibility = &v
 	}
 
 	if track.Status != "" {
-		status = track.Status
+		st := track.Status
+		status = &st
 	}
 
-	return s.db.UpdateTrack(userID, trackName, utils.EmptyIsNull(track.Name), utils.EmptyIsNull(track.Description), &visibility, &status)
+	return s.db.UpdateTrack(userID, trackName, utils.EmptyIsNull(track.Name), utils.EmptyIsNull(track.Description), visibility, status)
 }
 
 func (s *Service) DeleteTrack(ctx *gin.Context, userID int64, trackName string) error {

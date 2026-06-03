@@ -106,7 +106,7 @@ func NewConfiguration() Configuration {
 			PrivateKey:          jwtPrivKey,
 			AccessTokenDuration: accessTokenDuration,
 		},
-		RateLimitBurst:    getEnvInt("RATE_LIMIT_BURST", 3),
+		RateLimitBurst:    getEnvInt("RATE_LIMIT_BURST", 200),
 		RateLimitInterval: rateLimitInterval,
 		SignupDisabled:    getEnv("DISABLE_SIGNUP", "false") == "true",
 	}
