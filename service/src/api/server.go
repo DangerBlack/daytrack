@@ -12,6 +12,7 @@ import (
 	"512b.it/daytrack/src/api/middleware"
 	"512b.it/daytrack/src/api/track"
 	"512b.it/daytrack/src/api/user"
+	"512b.it/daytrack/src/database"
 	"512b.it/daytrack/src/models"
 	"512b.it/daytrack/src/utils"
 	"github.com/gin-gonic/gin"
@@ -30,10 +31,12 @@ type Server struct {
 	apiKey        *api_key.Service
 	track         *track.Service
 	event         *event.Service
+	db            *database.Database
 }
 
 func NewServer(
 	configuration models.Configuration,
+	db *database.Database,
 	user *user.Service,
 	apiKey *api_key.Service,
 	track *track.Service,
@@ -56,6 +59,7 @@ func NewServer(
 	server := &Server{
 		engine:        engine,
 		configuration: configuration,
+		db:            db,
 		user:          user,
 		apiKey:        apiKey,
 		track:         track,
@@ -106,7 +110,7 @@ func (s *Server) setupRoutes() {
 	user.Inject(unauthenticatedRoute, authenticatedRoute, s.user, s.configuration)
 	api_key.Inject(unauthenticatedRoute, authenticatedRoute, s.apiKey, s.configuration)
 	track.Inject(unauthenticatedRoute, authenticatedRoute, s.track, s.configuration)
-	event.Inject(unauthenticatedRoute, authenticatedRoute, s.event, s.configuration)
+	event.Inject(unauthenticatedRoute, authenticatedRoute, s.db, s.event, s.configuration)
 
 	if s.configuration.Environment == models.Development {
 		log.Info().Msgf("Enable swagger on http://%s:%d/swagger/index.html", s.configuration.HTTPHost, s.configuration.HTTPPort)

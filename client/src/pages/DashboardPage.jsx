@@ -12,6 +12,7 @@ export default function DashboardPage() {
   const token = getToken();
   const user = getUser();
   const [newTrackName, setNewTrackName] = useState('');
+  const [newTrackVisibility, setNewTrackVisibility] = useState('private');
   const [showCreate, setShowCreate] = useState(false);
   const [trackError, setTrackError] = useState('');
   const [expandedTrack, setExpandedTrack] = useState(null);
@@ -43,10 +44,11 @@ export default function DashboardPage() {
   const tracks = tracksData?.items || [];
 
   const createMutation = useMutation({
-    mutationFn: (name) => createTrack(name, token),
+    mutationFn: ({ name, visibility }) => createTrack(name, token, visibility),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tracks'] });
       setNewTrackName('');
+      setNewTrackVisibility('private');
       setShowCreate(false);
       setTrackError('');
     },
@@ -72,7 +74,7 @@ export default function DashboardPage() {
       {showCreate && (
         <form className="create-form" onSubmit={e => {
           e.preventDefault();
-          if (newTrackName.trim()) createMutation.mutate(newTrackName.trim());
+          if (newTrackName.trim()) createMutation.mutate({ name: newTrackName.trim(), visibility: newTrackVisibility });
         }}>
           <input
             type="text"
@@ -85,6 +87,15 @@ export default function DashboardPage() {
             pattern="[a-zA-Z0-9_-]+"
             title="Letters, numbers, underscores and hyphens only (3-255 characters)"
           />
+          <select
+            value={newTrackVisibility}
+            onChange={e => setNewTrackVisibility(e.target.value)}
+            className="visibility-select"
+          >
+            <option value="private">Private</option>
+            <option value="public_r">Public (read)</option>
+            <option value="public_rw">Public (read+write)</option>
+          </select>
           {trackError && <p className="form-error">{trackError}</p>}
           <button type="submit" className="btn btn-primary" disabled={createMutation.isPending}>
             Create

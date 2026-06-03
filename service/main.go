@@ -50,6 +50,7 @@ func main() {
 
 	server := api.NewServer(
 		configuration,
+		db,
 		user,
 		apiKey,
 		track,
