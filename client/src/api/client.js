@@ -124,14 +124,4 @@ export function listEvents(apiKey, username, trackName, listBy) {
   return request(path);
 }
 
-export function listPublicTracks() {
-  return request('/v1/tracks/public');
-}
 
-export function listPublicEvents(username, trackName, listBy) {
-  let path = `/v1/events/public/${encodeURIComponent(username)}/${encodeURIComponent(trackName)}`;
-  if (listBy) {
-    path += `?list_by=${listBy}`;
-  }
-  return request(path);
-}
