@@ -13,7 +13,7 @@ import (
 	faker "512b.it/daytrack/tests/utils"
 )
 
-const BASE_URL = "http://localhost:3000"
+const BASE_URL = "http://127.0.0.1:3000"
 
 type SignedUser struct {
 	models.User
