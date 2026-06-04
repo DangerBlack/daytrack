@@ -96,7 +96,7 @@ func (c *EventController) createEventRoute() gin.HandlerFunc {
 			createdAtx, err := time.Parse(time.RFC3339, createdAtString)
 			if err != nil {
 				c.logger(ctx).Err(err).Msg("Failed to parse created_at")
-				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid created_at"))
+				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid created_at parameter, expected RFC 3339 format"))
 				return
 			}
 			createdAt = &createdAtx
@@ -150,7 +150,7 @@ func (c *EventController) listEventRoute() gin.HandlerFunc {
 		if afterString != nil {
 			afterX, err := time.Parse(time.RFC3339, *afterString)
 			if err != nil {
-				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid created_at"))
+				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid after parameter, expected RFC 3339 format"))
 				return
 			}
 			after = &afterX
