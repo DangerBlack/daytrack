@@ -53,9 +53,9 @@ func NewConfiguration() Configuration {
 		envType = Production
 	}
 
-	accessTokenDuration, err := time.ParseDuration(getEnv("JWT_ACCESS_TOKEN_DURATION", "15m"))
+	accessTokenDuration, err := time.ParseDuration(getEnv("JWT_ACCESS_TOKEN_DURATION", "720h"))
 	if err != nil {
-		accessTokenDuration = 15 * time.Minute
+		accessTokenDuration = 720 * time.Hour
 	}
 
 	var jwtPubKey ed25519.PublicKey

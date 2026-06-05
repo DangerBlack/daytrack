@@ -117,7 +117,7 @@ daytrack/
 | `OPAQUE_CHALLENGE_RANGE` | `100000` | Challenge space (higher = more entropy) |
 | `JWT_PRIVATE_KEY` | (ephemeral) | Ed25519 private key PEM |
 | `JWT_PUBLIC_KEY` | (ephemeral) | Ed25519 public key PEM |
-| `JWT_ACCESS_TOKEN_DURATION` | `15m` | Token expiry (Go duration format) |
+| `JWT_ACCESS_TOKEN_DURATION` | `720h` | Token expiry (Go duration format, 30d default) |
 | `RATE_LIMIT_BURST` | `200` | Max requests per interval per IP for event creation |
 | `RATE_LIMIT_INTERVAL` | `1s` | Rate limit window (Go duration format) |
 | `DISABLE_SIGNUP` | `false` | Set to `true` to disable new user registration |
