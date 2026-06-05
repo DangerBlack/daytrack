@@ -1,6 +1,8 @@
 # Daytrack
 
-FOSS daily activity tracker. Track anything you do — coding hours, workouts, reading, habits — via API or web UI. Built with Go/Gin/SQLite backend and Vite+React frontend.
+[![ko-fi](https://img.shields.io/badge/Support%20me%20on%20Ko--fi-F16061?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/dangerblack)
+
+FOSS daily activity tracker. Track anything you do, coding hours, workouts, reading, habits, via API or web UI. Built with Go/Gin/SQLite backend and Vite+React frontend.
 
 ## Quick Start
 
