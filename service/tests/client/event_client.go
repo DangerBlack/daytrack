@@ -16,7 +16,7 @@ func TrackEvent(key string, username, trackName string, quantity int, createAt *
 
 func TrackEventWithStatus(key string, username, trackName string, quantity int, createAt *time.Time, expectedStatus int) error {
 	var err error
-	url := BASE_URL + fmt.Sprintf("/v1/events/%s/%s?quantity=%d", username, trackName, quantity)
+	url := baseURL() + fmt.Sprintf("/v1/events/%s/%s?quantity=%d", username, trackName, quantity)
 
 	if key != "" {
 		url += fmt.Sprintf("&key=%s", key)
@@ -49,7 +49,7 @@ func ListEventsWithStatus(key string, username, trackName string, listBy *models
 	var err error
 	var response models.List[models.Day]
 
-	url := BASE_URL + fmt.Sprintf("/v1/events/%s/%s", username, trackName)
+	url := baseURL() + fmt.Sprintf("/v1/events/%s/%s", username, trackName)
 
 	if key != "" {
 		url += fmt.Sprintf("?key=%s", key)
