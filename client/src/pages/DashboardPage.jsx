@@ -91,6 +91,7 @@ export default function DashboardPage() {
             value={newTrackVisibility}
             onChange={e => setNewTrackVisibility(e.target.value)}
             className="visibility-select"
+            aria-label="Track visibility"
           >
             <option value="private">Private</option>
             <option value="public_r">Public (read)</option>

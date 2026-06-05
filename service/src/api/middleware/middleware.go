@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -82,14 +83,24 @@ func AuthApiKeyGuards(configuration models.Configuration, db *database.Database)
 
 			user, err := db.GetUserByName(username)
 			if err != nil {
-				ctx.JSON(http.StatusForbidden, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
+				if errors.Is(err, database.ErrorNotFound) {
+					ctx.JSON(http.StatusForbidden, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
+				} else {
+					utils.Logger(requestCtx).Err(err).Msgf("Failed to look up user %s", username)
+					ctx.JSON(http.StatusInternalServerError, models.NewError(models.ErrorInternalServerError, ""))
+				}
 				ctx.Abort()
 				return
 			}
 
 			track, err := db.GetTrackByUserIDAndName(user.ID, trackName)
 			if err != nil {
-				ctx.JSON(http.StatusForbidden, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
+				if errors.Is(err, database.ErrorNotFound) {
+					ctx.JSON(http.StatusForbidden, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
+				} else {
+					utils.Logger(requestCtx).Err(err).Msgf("Failed to look up track %s for user %d", trackName, user.ID)
+					ctx.JSON(http.StatusInternalServerError, models.NewError(models.ErrorInternalServerError, ""))
+				}
 				ctx.Abort()
 				return
 			}

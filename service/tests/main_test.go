@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"testing"
+	"time"
 
 	"512b.it/daytrack/src/api"
 	"512b.it/daytrack/src/api/api_key"
@@ -57,6 +58,16 @@ func TestMain(m *testing.M) {
 			panic(fmt.Sprintf("server failed: %v", err))
 		}
 	}()
+
+	// Wait for server to be ready
+	for i := 0; i < 30; i++ {
+		conn, err := net.Dial("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+		if err == nil {
+			conn.Close()
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
 
 	code := m.Run()
 

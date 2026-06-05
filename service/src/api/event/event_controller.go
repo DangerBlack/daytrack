@@ -96,7 +96,7 @@ func (c *EventController) createEventRoute() gin.HandlerFunc {
 			createdAtx, err := time.Parse(time.RFC3339, createdAtString)
 			if err != nil {
 				c.logger(ctx).Err(err).Msg("Failed to parse created_at")
-				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid created_at parameter, expected RFC 3339 format"))
+				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid after parameter, expected RFC 3339 format"))
 				return
 			}
 			createdAt = &createdAtx
@@ -174,7 +174,7 @@ func (c *EventController) listEventRoute() gin.HandlerFunc {
 
 		if err != nil {
 			c.logger(ctx).Err(err).Msg("Failed to list events")
-			if errors.Is(err, ErrorEventCannotBeCalledByYou) {
+			if errors.Is(err, ErrorEventCannotBeCalledByYou) || errors.Is(err, database.ErrorNotFound) {
 				ctx.JSON(403, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
 			} else {
 				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))

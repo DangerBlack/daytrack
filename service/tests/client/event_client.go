@@ -69,7 +69,7 @@ func ListEventsWithStatus(key string, username, trackName string, listBy *models
 		utils.WithExpectedStatusCode(expectedStatus),
 		utils.ExtractGenericModel(&response),
 	); err != nil {
-		return nil, fmt.Errorf("failed unable to create api key request: %w", err)
+		return nil, fmt.Errorf("failed unable to list events: %w", err)
 	}
 
 	return &response, nil
