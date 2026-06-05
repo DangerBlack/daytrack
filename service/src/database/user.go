@@ -1,6 +1,9 @@
 package database
 
 import (
+	"database/sql"
+	"errors"
+
 	"512b.it/daytrack/src/models"
 )
 
@@ -36,28 +39,9 @@ func (d *Database) GetUserByID(id int64) (*models.User, error) {
 		WHERE id = ?;
 	`, id).Scan(&user.Username, &user.Email, &user.PublicKey, &user.Salt)
 
-	if err != nil {
-		return nil, err
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrorNotFound
 	}
-
-	return &user, nil
-}
-
-func (d *Database) GetUserByEmail(email string) (*models.User, error) {
-	user := models.User{
-		Email: email,
-	}
-
-	err := d.db.QueryRow(`
-		SELECT
-			id,
-			username,
-			public_key,
-			salt
-		FROM users
-		WHERE email = ?;
-	`, email).Scan(&user.ID, &user.Username, &user.PublicKey, &user.Salt)
-
 	if err != nil {
 		return nil, err
 	}
@@ -80,6 +64,34 @@ func (d *Database) GetUserByName(username string) (*models.User, error) {
 		WHERE username = ?;
 	`, username).Scan(&user.ID, &user.Email, &user.PublicKey, &user.Salt)
 
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrorNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (d *Database) GetUserByEmail(email string) (*models.User, error) {
+	user := models.User{
+		Email: email,
+	}
+
+	err := d.db.QueryRow(`
+		SELECT
+			id,
+			username,
+			public_key,
+			salt
+		FROM users
+		WHERE email = ?;
+	`, email).Scan(&user.ID, &user.Username, &user.PublicKey, &user.Salt)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrorNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
