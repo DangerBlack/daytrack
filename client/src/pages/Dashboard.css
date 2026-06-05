@@ -7,6 +7,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  gap: 0.5rem;
 }
 
 .header-row h1 {
@@ -177,6 +178,7 @@
 
 .track-actions {
   display: flex;
+  align-items: center;
   gap: 0.25rem;
 }
 
@@ -258,6 +260,7 @@
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
   font-family: monospace;
+  word-break: break-all;
 }
 
 .empty-state {
@@ -368,6 +371,7 @@
   .track-header {
     flex-wrap: wrap;
     gap: 0.5rem;
+    align-items: flex-start;
   }
 
   .track-event-form {
