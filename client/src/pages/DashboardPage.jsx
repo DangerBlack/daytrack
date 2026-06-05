@@ -209,9 +209,6 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
           <button onClick={onToggle} className="btn btn-sm">
             {isExpanded ? 'Show less' : 'Show more'}
           </button>
-          <button onClick={() => setDeleteConfirm(true)} className="btn btn-danger btn-sm">
-            Delete
-          </button>
         </div>
       </div>
 
@@ -267,6 +264,9 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
               </div>
             ))}
           </div>
+          <button onClick={() => setDeleteConfirm(true)} className="btn btn-danger btn-sm" style={{ marginTop: '0.5rem' }}>
+            Delete track
+          </button>
         </div>
       )}
     </div>
