@@ -1,7 +1,7 @@
 FROM node:22-bookworm AS frontend-builder
 WORKDIR /app
 COPY client/package.json client/package-lock.json ./
-RUN npm install && npm install @rolldown/binding-linux-x64-gnu lightningcss-linux-x64-gnu
+RUN npm install
 COPY client/ .
 RUN npm run build
 
