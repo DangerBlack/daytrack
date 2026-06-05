@@ -3,7 +3,6 @@ package api_key
 import (
 	"strconv"
 	"strings"
-	"time"
 
 	"512b.it/daytrack/src/models"
 	"512b.it/daytrack/src/utils"
@@ -72,7 +71,7 @@ func (c *ApiKeyController) injectAuthenticatedRoutes() {
 func (c *ApiKeyController) createApiKeyRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
-		var key *string
+		var apiKey *models.ApiKey
 		var userID int64
 
 		name := strings.TrimSpace(ctx.DefaultQuery("name", "default"))
@@ -92,18 +91,13 @@ func (c *ApiKeyController) createApiKeyRoute() gin.HandlerFunc {
 			return
 		}
 
-		if key, err = c.apiKey.CreateApiKey(userID, name); err != nil {
+		if apiKey, err = c.apiKey.CreateApiKey(userID, name); err != nil {
 			c.logger(ctx).Err(err).Msg("Error while creating api key")
 			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to create api key"))
 			return
 		}
 
-		ctx.JSON(201, models.ApiKey{
-			Name:      name,
-			UserID:    userID,
-			Key:       *key,
-			CreatedAt: time.Now(),
-		})
+		ctx.JSON(201, apiKey)
 	}
 }
 

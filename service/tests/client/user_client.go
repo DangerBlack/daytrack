@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"os"
 
 	"512b.it/daytrack/src/models"
 	user_utils "512b.it/daytrack/src/utils"
@@ -13,7 +14,12 @@ import (
 	faker "512b.it/daytrack/tests/utils"
 )
 
-const BASE_URL = "http://localhost:3000"
+func baseURL() string {
+	if u := os.Getenv("TEST_BASE_URL"); u != "" {
+		return u
+	}
+	return "http://127.0.0.1:3000"
+}
 
 type SignedUser struct {
 	models.User
@@ -24,7 +30,7 @@ type SignedUser struct {
 func GenerateChallenge(email string) (*models.Challenge, error) {
 	var err error
 	var response models.Challenge
-	url := BASE_URL + "/v1/users/challenge?email=" + email
+	url := baseURL() + "/v1/users/challenge?email=" + email
 
 	if err = utils.DoRequest(
 		url,
@@ -41,7 +47,7 @@ func GenerateChallenge(email string) (*models.Challenge, error) {
 func SignUp(username, email, password string) error {
 	var err error
 	var challenge *models.Challenge
-	url := BASE_URL + "/v1/users/signup"
+	url := baseURL() + "/v1/users/signup"
 
 	if challenge, err = GenerateChallenge(email); err != nil {
 		return err
@@ -77,7 +83,7 @@ func SignIn(email, password string) (*models.Token, error) {
 	var err error
 	var response models.Token
 	var challenge *models.Challenge
-	url := BASE_URL + "/v1/users/signin"
+	url := baseURL() + "/v1/users/signin"
 
 	if challenge, err = GenerateChallenge(email); err != nil {
 		return nil, err

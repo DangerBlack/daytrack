@@ -1,12 +1,14 @@
 # Daytrack
 
-FOSS daily activity tracker. Track anything you do — coding hours, workouts, reading, habits — via API or web UI. Built with Go/Gin/SQLite backend and Vite+React frontend.
+[![ko-fi](https://img.shields.io/badge/Support%20me%20on%20Ko--fi-F16061?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/dangerblack)
+
+FOSS daily activity tracker. Track anything you do, coding hours, workouts, reading, habits, via API or web UI. Built with Go/Gin/SQLite backend and Vite+React frontend.
 
 ## Quick Start
 
 ### Prerequisites
 
-- Go 1.20+
+- Go 1.22+
 - Node.js 22+
 - npm
 
@@ -25,18 +27,17 @@ cp service/.env.example service/.env
 ```
 
 Edit `service/.env` — at minimum set:
-- `JWT_PRIVATE_KEY` — PEM content of the Ed25519 private key (on a single line, with literal `\n`)
-- `JWT_PUBLIC_KEY` — PEM content of the Ed25519 public key (same format)
 - `OPAQUE_SALT_NONCE` — `openssl rand -hex 16` output
 
-> **No JWT keys?** The app generates ephemeral ones at startup. Tokens will break on restart.
+JWT keys are optional — ephemeral ones are generated at startup (tokens will break on restart). For persistent tokens across restarts, set:
+- `JWT_PRIVATE_KEY` — Ed25519 private key PEM (single line, literal `\n`)
+- `JWT_PUBLIC_KEY` — Ed25519 public key PEM (same format)
 
 ### 3. Build frontend
 
 ```bash
 cd client
-npm ci
-npx vite build
+npm install && npm run build
 cd ..
 ```
 
@@ -101,7 +102,7 @@ daytrack/
 │   │   └── middleware/        # Auth middleware (JWT + API key)
 │   ├── .env.example
 │   └── go.mod
-├── Dockerfile                 # Multi-stage build (Node → Go → Alpine)
+├── Dockerfile                 # Multi-stage build (Node → Go → Debian)
 ├── docker-compose.yml
 └── README.md
 ```
@@ -118,7 +119,10 @@ daytrack/
 | `OPAQUE_CHALLENGE_RANGE` | `100000` | Challenge space (higher = more entropy) |
 | `JWT_PRIVATE_KEY` | (ephemeral) | Ed25519 private key PEM |
 | `JWT_PUBLIC_KEY` | (ephemeral) | Ed25519 public key PEM |
-| `JWT_ACCESS_TOKEN_DURATION` | `15m` | Token expiry (Go duration format) |
+| `JWT_ACCESS_TOKEN_DURATION` | `720h` | Token expiry (Go duration format, 30d default) |
+| `RATE_LIMIT_BURST` | `200` | Max requests per interval per IP for event creation |
+| `RATE_LIMIT_INTERVAL` | `1s` | Rate limit window (Go duration format) |
+| `DISABLE_SIGNUP` | `false` | Set to `true` to disable new user registration |
 
 ## API Usage
 
@@ -164,6 +168,34 @@ curl -X DELETE -H "Authorization: Bearer {jwt}" \
   http://localhost:3000/v1/tracks/{track_name}
 ```
 
+## Integrations
+
+See [docs/integrations.md](docs/integrations.md) for copy-paste examples with:
+
+- **Home Assistant**: RESTful command or shell_command templates
+- **Flic buttons**: physical button, Internet Request action
+- **Any HTTP client**: Shortcuts, Tasker, IFTTT, n8n, curl
+
+## Tests
+
+End-to-end tests require a running server. Start the server first, then run tests:
+
+```bash
+# Terminal 1: start server
+cd service && go run .
+
+# Terminal 2: run tests
+cd service && go test ./tests/...
+```
+
+Tests cover:
+- **Auth**: challenge, signup, signin, duplicate username
+- **API keys**: create, list, delete
+- **Tracks**: create, list, update, delete
+- **Events**: create at time, list by day/public/private
+- **Access guards**: anonymous vs authenticated access for private, public-read, and public-read-write tracks
+- **Cross-access**: users accessing other users' tracks with different visibility levels
+
 ## Development
 
 ### Frontend dev server (with backend proxy)
@@ -179,7 +211,7 @@ cd client && VITE_API_URL=http://localhost:3000 npm run dev
 ### Production build (single binary serves everything)
 
 ```bash
-cd client && npx vite build
+cd client && npm install && npm run build
 cd ../service && go build -o daytrack .
 ./daytrack
 # Frontend at http://localhost:3000 (served by Gin)

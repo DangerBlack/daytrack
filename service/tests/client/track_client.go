@@ -10,7 +10,7 @@ import (
 
 func CreateTrack(token string, name string) error {
 	var err error
-	url := BASE_URL + "/v1/tracks"
+	url := baseURL() + "/v1/tracks"
 
 	if err = utils.DoRequest(
 		url,
@@ -29,7 +29,7 @@ func CreateTrack(token string, name string) error {
 
 func UpdateTrack(token string, name string, visibility models.TrackVisibility) error {
 	var err error
-	url := BASE_URL + "/v1/tracks/" + name
+	url := baseURL() + "/v1/tracks/" + name
 
 	if err = utils.DoRequest(
 		url,
@@ -49,7 +49,7 @@ func UpdateTrack(token string, name string, visibility models.TrackVisibility) e
 func ListTracks(token string) (*models.List[models.Track], error) {
 	var err error
 	var response models.List[models.Track]
-	url := BASE_URL + "/v1/tracks"
+	url := baseURL() + "/v1/tracks"
 
 	if err = utils.DoRequest(
 		url,
@@ -66,7 +66,7 @@ func ListTracks(token string) (*models.List[models.Track], error) {
 
 func DeleteTrack(token string, name string) error {
 	var err error
-	url := BASE_URL + "/v1/tracks/" + name
+	url := baseURL() + "/v1/tracks/" + name
 
 	if err = utils.DoRequest(
 		url,

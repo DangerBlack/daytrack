@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"512b.it/daytrack/src/models"
 	"512b.it/daytrack/tests/utils"
@@ -11,7 +12,7 @@ import (
 func CreateApiKey(token string, name string) (*models.ApiKey, error) {
 	var err error
 	var response models.ApiKey
-	url := BASE_URL + "/v1/api_keys?name=" + name
+	url := baseURL() + "/v1/api_keys?name=" + name
 
 	if err = utils.DoRequest(
 		url,
@@ -29,7 +30,7 @@ func CreateApiKey(token string, name string) (*models.ApiKey, error) {
 func ListApiKeys(token string) (*models.List[models.ApiKey], error) {
 	var err error
 	var response models.List[models.ApiKey]
-	url := BASE_URL + "/v1/api_keys"
+	url := baseURL() + "/v1/api_keys"
 
 	if err = utils.DoRequest(
 		url,
@@ -44,9 +45,9 @@ func ListApiKeys(token string) (*models.List[models.ApiKey], error) {
 	return &response, nil
 }
 
-func DeleteApiKey(token string, key string) error {
+func DeleteApiKey(token string, id int64) error {
 	var err error
-	url := BASE_URL + "/v1/api_keys/" + key
+	url := baseURL() + "/v1/api_keys/" + strconv.FormatInt(id, 10)
 
 	if err = utils.DoRequest(
 		url,

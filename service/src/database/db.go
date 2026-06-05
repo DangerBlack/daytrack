@@ -10,6 +10,7 @@ import (
 )
 
 var ErrorDuplicate = errors.New("duplicate")
+var ErrorNotFound = errors.New("not found")
 
 type Database struct {
 	db *sql.DB

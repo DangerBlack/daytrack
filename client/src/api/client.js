@@ -59,10 +59,14 @@ export function signin(email, challenge, signedChallenge) {
   });
 }
 
-export function createTrack(name, token) {
+export function createTrack(name, token, visibility) {
+  const body = { name };
+  if (visibility) {
+    body.visibility = visibility;
+  }
   return request('/v1/tracks', {
     method: 'POST',
-    body: JSON.stringify({ name }),
+    body: JSON.stringify(body),
     token,
   });
 }
@@ -119,3 +123,5 @@ export function listEvents(apiKey, username, trackName, listBy) {
   }
   return request(path);
 }
+
+

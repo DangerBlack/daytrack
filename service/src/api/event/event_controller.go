@@ -1,10 +1,12 @@
 package event
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
 	"512b.it/daytrack/src/api/middleware"
+	"512b.it/daytrack/src/database"
 	"512b.it/daytrack/src/models"
 	"512b.it/daytrack/src/utils"
 	"github.com/gin-gonic/gin"
@@ -14,6 +16,7 @@ type EventController struct {
 	unauthenticatedRoute *gin.RouterGroup
 	authenticatedRoute   *gin.RouterGroup
 
+	db            *database.Database
 	configuration models.Configuration
 	event         *Service
 	logger        utils.ContextLogger
@@ -22,10 +25,11 @@ type EventController struct {
 func Inject(
 	unauthenticatedRoute *gin.RouterGroup,
 	authenticatedRoute *gin.RouterGroup,
+	db *database.Database,
 	event *Service,
 	configuration models.Configuration,
 ) {
-	controller := new(unauthenticatedRoute, authenticatedRoute, event, configuration)
+	controller := new(unauthenticatedRoute, authenticatedRoute, db, event, configuration)
 	controller.injectUnauthenticatedRoutes()
 	controller.injectAuthenticatedRoutes()
 }
@@ -33,6 +37,7 @@ func Inject(
 func new(
 	unauthenticatedRoute *gin.RouterGroup,
 	authenticatedRoute *gin.RouterGroup,
+	db *database.Database,
 	event *Service,
 	configuration models.Configuration,
 ) *EventController {
@@ -41,6 +46,7 @@ func new(
 	return &EventController{
 		unauthenticatedRoute: unauthenticatedRoute,
 		authenticatedRoute:   authenticatedRoute,
+		db:                   db,
 		event:                event,
 		configuration:        configuration,
 		logger:               logger,
@@ -48,7 +54,8 @@ func new(
 }
 
 func (c *EventController) injectUnauthenticatedRoutes() {
-	v1 := c.unauthenticatedRoute.Group("v1", middleware.AuthApiKeyGuards(c.configuration, c.event.db))
+	v1 := c.unauthenticatedRoute.Group("v1")
+	v1.Use(middleware.AuthApiKeyGuards(c.configuration, c.db))
 	{
 		v1.POST("/events/:username/:track_name", utils.RateLimit(c.configuration.RateLimitBurst, c.configuration.RateLimitInterval), c.createEventRoute())
 		v1.GET("/events/:username/:track_name", c.listEventRoute())
@@ -73,7 +80,6 @@ func (c *EventController) injectAuthenticatedRoutes() {}
 func (c *EventController) createEventRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
-		var userID int64
 		var createdAt *time.Time
 
 		username := ctx.Param("username")
@@ -90,26 +96,23 @@ func (c *EventController) createEventRoute() gin.HandlerFunc {
 			createdAtx, err := time.Parse(time.RFC3339, createdAtString)
 			if err != nil {
 				c.logger(ctx).Err(err).Msg("Failed to parse created_at")
-				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid created_at"))
+				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid after parameter, expected RFC 3339 format"))
 				return
 			}
-
 			createdAt = &createdAtx
 		}
 
-		if userID, err = utils.GetAuthenticatedUserID(ctx); err != nil {
-			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to get authenticated user id"))
-			return
+		var uid *int64
+		if rawID, authErr := utils.GetAuthenticatedUserID(ctx); authErr == nil {
+			uid = &rawID
 		}
 
-		if err = c.event.CreateEvent(userID, username, trackName, quantity, createdAt); err != nil {
+		if err = c.event.CreateEvent(uid, username, trackName, quantity, createdAt); err != nil {
 			c.logger(ctx).Err(err).Msg("Failed to create event")
-
-			if err == ErrorEventCannotBeCalledByYou {
+			if errors.Is(err, ErrorEventCannotBeCalledByYou) || errors.Is(err, database.ErrorNotFound) {
 				ctx.JSON(403, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
 				return
 			}
-
 			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to create event"))
 			return
 		}
@@ -134,7 +137,6 @@ func (c *EventController) createEventRoute() gin.HandlerFunc {
 func (c *EventController) listEventRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
-		var userID int64
 		var events []models.Day
 		var after *time.Time
 
@@ -144,42 +146,39 @@ func (c *EventController) listEventRoute() gin.HandlerFunc {
 
 		listBy := models.ListBy(ctx.DefaultQuery("list_by", string(models.ListByDay)))
 
-		if userID, err = utils.GetAuthenticatedUserID(ctx); err != nil {
-			ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to get authenticated user id"))
-			return
+		var uid *int64
+		if rawID, authErr := utils.GetAuthenticatedUserID(ctx); authErr == nil {
+			uid = &rawID
 		}
 
 		if afterString != nil {
 			afterX, err := time.Parse(time.RFC3339, *afterString)
 			if err != nil {
-				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid created_at"))
+				ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid after parameter, expected RFC 3339 format"))
 				return
 			}
-
 			after = &afterX
 		}
 
 		switch listBy {
 		case models.ListByDay:
-			if events, err = c.event.ListEventsByDays(userID, username, trackName, after); err != nil {
-				c.logger(ctx).Err(err).Msg("Failed to list events grouped by day")
-				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
-				return
-			}
+			events, err = c.event.ListEventsByDays(uid, username, trackName, after)
 		case models.ListByMonth:
-			if events, err = c.event.ListEventsByMonth(userID, username, trackName, after); err != nil {
-				c.logger(ctx).Err(err).Msg("Failed to list events grouped by month")
-				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
-				return
-			}
+			events, err = c.event.ListEventsByMonth(uid, username, trackName, after)
 		case models.ListByRaw:
-			if events, err = c.event.ListEvents(userID, username, trackName, after); err != nil {
-				c.logger(ctx).Err(err).Msg("Failed to list events raws")
-				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
-				return
-			}
+			events, err = c.event.ListEvents(uid, username, trackName, after)
 		default:
 			ctx.JSON(400, models.NewError(models.ErrorBadRequest, "invalid list_by"))
+			return
+		}
+
+		if err != nil {
+			c.logger(ctx).Err(err).Msg("Failed to list events")
+			if errors.Is(err, ErrorEventCannotBeCalledByYou) || errors.Is(err, database.ErrorNotFound) {
+				ctx.JSON(403, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
+			} else {
+				ctx.JSON(500, models.NewError(models.ErrorInternalServerError, "failed to list events"))
+			}
 			return
 		}
 

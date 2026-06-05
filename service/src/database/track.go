@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 
 	"512b.it/daytrack/src/models"
 )
@@ -41,6 +42,9 @@ func (d *Database) GetTrackByUserIDAndName(userID int64, trackName string) (*mod
 		WHERE user_id = ? and name = ?;
 	`, userID, trackName).Scan(&track.ID, &track.Description, &track.Visibility, &track.Status, &track.CreatedAt, &track.DeleteAt)
 
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrorNotFound
+	}
 	if err != nil {
 		return nil, err
 	}

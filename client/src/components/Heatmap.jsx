@@ -1,9 +1,17 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import './Heatmap.css';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export default function Heatmap({ days = [] }) {
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+    }
+  }, [days]);
+
   const { weeks, monthLabels } = useMemo(() => {
     const map = {};
     for (const d of days) {
@@ -69,13 +77,13 @@ export default function Heatmap({ days = [] }) {
             <div key={i} className="heatmap-day-label">{label}</div>
           ))}
         </div>
-        <div className="heatmap-weeks">
+        <div className="heatmap-weeks" ref={scrollRef}>
           <div className="heatmap-month-row">
             {monthLabels.map((ml, i) => (
               <span
                 key={i}
                 className="heatmap-month-label"
-                style={{ left: `${ml.index * 16}px` }}
+                style={{ left: `calc(${ml.index} * var(--heatmap-col-w, 16px))` }}
               >
                 {ml.label}
               </span>

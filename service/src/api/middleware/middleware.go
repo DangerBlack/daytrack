@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -68,10 +69,60 @@ func AuthUserGuards(configuration models.Configuration) gin.HandlerFunc {
 func AuthApiKeyGuards(configuration models.Configuration, db *database.Database) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		requestCtx := ctx.Request.Context()
+		key := ctx.Query("key")
+
+		if key == "" {
+			username := ctx.Param("username")
+			trackName := ctx.Param("track_name")
+
+			if username == "" || trackName == "" {
+				ctx.JSON(http.StatusUnauthorized, models.NewError(models.ErrorUnauthorized, ""))
+				ctx.Abort()
+				return
+			}
+
+			user, err := db.GetUserByName(username)
+			if err != nil {
+				if errors.Is(err, database.ErrorNotFound) {
+					ctx.JSON(http.StatusForbidden, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
+				} else {
+					utils.Logger(requestCtx).Err(err).Msgf("Failed to look up user %s", username)
+					ctx.JSON(http.StatusInternalServerError, models.NewError(models.ErrorInternalServerError, ""))
+				}
+				ctx.Abort()
+				return
+			}
+
+			track, err := db.GetTrackByUserIDAndName(user.ID, trackName)
+			if err != nil {
+				if errors.Is(err, database.ErrorNotFound) {
+					ctx.JSON(http.StatusForbidden, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
+				} else {
+					utils.Logger(requestCtx).Err(err).Msgf("Failed to look up track %s for user %d", trackName, user.ID)
+					ctx.JSON(http.StatusInternalServerError, models.NewError(models.ErrorInternalServerError, ""))
+				}
+				ctx.Abort()
+				return
+			}
+
+			isWrite := ctx.Request.Method == http.MethodPost
+			if isWrite && track.Visibility != models.TrackVisibilityPublicWrite {
+				ctx.JSON(http.StatusForbidden, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
+				ctx.Abort()
+				return
+			}
+			if !isWrite && track.Visibility != models.TrackVisibilityPublicRead && track.Visibility != models.TrackVisibilityPublicWrite {
+				ctx.JSON(http.StatusForbidden, models.NewError(models.ErrorForbidden, "event cannot be called by you"))
+				ctx.Abort()
+				return
+			}
+
+			ctx.Next()
+			return
+		}
 
 		var err error
 		var apiKey *models.ApiKey
-		key := ctx.Query("key")
 
 		if apiKey, err = db.GetAPIKey(key); err != nil {
 			utils.Logger(requestCtx).Err(err).Msgf("Unable to get the api key")

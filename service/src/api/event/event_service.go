@@ -62,38 +62,78 @@ func (s *Service) resolveTrack(userID int64, username string, trackName string, 
 	return &resolvedTarget{track: track}, nil
 }
 
-func (s *Service) CreateEvent(userID int64, username string, trackName string, quantity int, createdAt *time.Time) error {
-	target, err := s.resolveTrack(userID, username, trackName, true)
-	if err != nil {
-		return err
-	}
-
-	return s.db.InsertEvent(target.track.ID, quantity, createdAt)
-}
-
-func (s *Service) ListEventsByMonth(userID int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
-	target, err := s.resolveTrack(userID, username, trackName, false)
+func (s *Service) resolveTrackByName(username string, trackName string) (*models.Track, error) {
+	user, err := s.db.GetUserByName(username)
 	if err != nil {
 		return nil, err
 	}
-
-	return s.db.GetEventsByTrackIDGroupByMonth(target.track.ID, after)
+	return s.db.GetTrackByUserIDAndName(user.ID, trackName)
 }
 
-func (s *Service) ListEventsByDays(userID int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
-	target, err := s.resolveTrack(userID, username, trackName, false)
+func (s *Service) CreateEvent(userID *int64, username string, trackName string, quantity int, createdAt *time.Time) error {
+	var trackID int64
+
+	if userID != nil {
+		target, err := s.resolveTrack(*userID, username, trackName, true)
+		if err != nil {
+			return err
+		}
+		trackID = target.track.ID
+	} else {
+		track, err := s.resolveTrackByName(username, trackName)
+		if err != nil {
+			return err
+		}
+		trackID = track.ID
+	}
+
+	return s.db.InsertEvent(trackID, quantity, createdAt)
+}
+
+func (s *Service) ListEventsByMonth(userID *int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
+	if userID != nil {
+		target, err := s.resolveTrack(*userID, username, trackName, false)
+		if err != nil {
+			return nil, err
+		}
+		return s.db.GetEventsByTrackIDGroupByMonth(target.track.ID, after)
+	}
+
+	track, err := s.resolveTrackByName(username, trackName)
 	if err != nil {
 		return nil, err
 	}
-
-	return s.db.GetEventsByTrackIDGroupByDay(target.track.ID, after)
+	return s.db.GetEventsByTrackIDGroupByMonth(track.ID, after)
 }
 
-func (s *Service) ListEvents(userID int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
-	target, err := s.resolveTrack(userID, username, trackName, false)
+func (s *Service) ListEventsByDays(userID *int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
+	if userID != nil {
+		target, err := s.resolveTrack(*userID, username, trackName, false)
+		if err != nil {
+			return nil, err
+		}
+		return s.db.GetEventsByTrackIDGroupByDay(target.track.ID, after)
+	}
+
+	track, err := s.resolveTrackByName(username, trackName)
 	if err != nil {
 		return nil, err
 	}
+	return s.db.GetEventsByTrackIDGroupByDay(track.ID, after)
+}
 
-	return s.db.GetEventsByTrackID(target.track.ID, after)
+func (s *Service) ListEvents(userID *int64, username string, trackName string, after *time.Time) ([]models.Day, error) {
+	if userID != nil {
+		target, err := s.resolveTrack(*userID, username, trackName, false)
+		if err != nil {
+			return nil, err
+		}
+		return s.db.GetEventsByTrackID(target.track.ID, after)
+	}
+
+	track, err := s.resolveTrackByName(username, trackName)
+	if err != nil {
+		return nil, err
+	}
+	return s.db.GetEventsByTrackID(track.ID, after)
 }
