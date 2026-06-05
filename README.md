@@ -170,9 +170,9 @@ curl -X DELETE -H "Authorization: Bearer {jwt}" \
 
 See [docs/integrations.md](docs/integrations.md) for copy-paste examples with:
 
-- **Home Assistant** — RESTful command or shell_command templates
-- **Flic buttons** — physical button → Internet Request action
-- **Any HTTP client** — Shortcuts, Tasker, IFTTT, n8n, curl
+- **Home Assistant**: RESTful command or shell_command templates
+- **Flic buttons**: physical button, Internet Request action
+- **Any HTTP client**: Shortcuts, Tasker, IFTTT, n8n, curl
 
 ## Tests
 

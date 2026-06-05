@@ -2,7 +2,7 @@
 
 ## Home Assistant
 
-Track anything from Home Assistant automations — door opens, workouts, coffee brews, whatever.
+Track anything from Home Assistant automations, door opens, workouts, coffee brews, whatever.
 
 ### Prerequisites
 
@@ -79,6 +79,58 @@ data:
 
 The `created_at` parameter accepts RFC 3339 format: `&created_at=2026-06-03T10:00:00Z`
 
+### Reading event data (sensors and dashboards)
+
+Use Home Assistant's RESTful sensor to pull event counts into dashboards.
+
+Add to `configuration.yaml`:
+
+```yaml
+sensor:
+  - platform: rest
+    name: "Coffee today"
+    resource: "https://daytrack.example.com/v1/events/your_username/coffee?key=YOUR_API_KEY&list_by=day"
+    method: GET
+    value_template: "{% if value_json.items %} {{ value_json.items[0].quantity }} {% else %} 0 {% endif %}"
+    scan_interval: 300
+    unit_of_measurement: "cups"
+```
+
+For weekly or monthly totals, use `list_by=month`:
+
+```yaml
+sensor:
+  - platform: rest
+    name: "Coffee this month"
+    resource: "https://daytrack.example.com/v1/events/your_username/coffee?key=YOUR_API_KEY&list_by=month"
+    method: GET
+    value_template: "{% if value_json.items %} {{ value_json.items[0].quantity }} {% else %} 0 {% endif %}"
+    scan_interval: 3600
+    unit_of_measurement: "cups"
+```
+
+You can then display these in your Lovelace dashboard:
+
+```yaml
+type: entities
+title: Daily Tracking
+entities:
+  - entity: sensor.coffee_today
+  - entity: sensor.coffee_this_month
+```
+
+Or as a gauge:
+
+```yaml
+type: gauge
+entity: sensor.coffee_today
+max: 10
+severity:
+  green: 0
+  yellow: 5
+  red: 8
+```
+
 ### Public tracks (no API key needed)
 
 If you set a track's visibility to `public_rw` (public read+write), you can omit the API key:
@@ -96,7 +148,7 @@ data:
 
 ## Flic (physical button)
 
-Track anything with a button press — no phone needed.
+Track anything with a button press, no phone needed.
 
 ### Prerequisites
 
@@ -107,7 +159,7 @@ Track anything with a button press — no phone needed.
 
 1. Open the Flic app
 2. Select your button
-3. Tap **"Add action"** → **"Internet Request"**
+3. Tap **"Add action"**, then tap **"Internet Request"**
 4. Configure:
 
 | Field | Value |
@@ -118,9 +170,9 @@ Track anything with a button press — no phone needed.
 | **Body** | (leave empty) |
 
 Replace:
-- `{username}` — your Daytrack username
-- `{track_name}` — the track name (e.g. `water`, `standup`, `coffee`)
-- `{api_key}` — your API key
+- `{username}`: your Daytrack username
+- `{track_name}`: the track name (e.g. `water`, `standup`, `coffee`)
+- `{api_key}`: your API key
 
 ### Multiple tracks with one button (Flic long press)
 
@@ -156,8 +208,8 @@ curl "https://daytrack.example.com/v1/events/john/coffee?key=abc123&list_by=day"
 ```
 
 Works from:
-- **Shortcuts (iOS)** — "Get contents of URL" action, POST
-- **Tasker (Android)** — HTTP Post action
-- **IFTTT** — Webhooks → Maker channel
-- **n8n / Node-RED** — HTTP Request node
-- **Any curl-capable device** — ESP32, Raspberry Pi, etc.
+- **Shortcuts (iOS)**: "Get contents of URL" action, POST
+- **Tasker (Android)**: HTTP Post action
+- **IFTTT**: Webhooks, Maker channel
+- **n8n / Node-RED**: HTTP Request node
+- **Any curl-capable device**: ESP32, Raspberry Pi, etc.
