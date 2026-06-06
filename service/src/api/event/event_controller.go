@@ -138,7 +138,7 @@ func (c *EventController) createEventRoute() gin.HandlerFunc {
 // @Param list_by query string false "Aggregation (day, month, raw)" Enums(day, month, raw)
 // @Param format query string false "Response format (json or html)" Enums(json, html)
 // @Accept json
-// @Produce json, text/html
+// @Produce json,text/html
 // @Success 200 {object} models.List[models.Day]
 func (c *EventController) listEventRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {

@@ -225,6 +225,8 @@ func ExtractBodyString(response *string) RequestModifier {
 		if err != nil {
 			return err
 		}
+		res.Body.Close()
+		res.Body = io.NopCloser(bytes.NewReader(body))
 
 		*response = string(body)
 		return nil

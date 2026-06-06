@@ -267,12 +267,17 @@ func TestListEventsHTML(t *testing.T) {
 	}
 
 	if !strings.Contains(html, "l-4") {
-		t.Fatal("expected a cell with max intensity (5 is max)")
+		t.Fatal("expected a cell with max intensity (4 is max)")
 		return
 	}
 
-	if !strings.Contains(html, t1.Format("2006-01-02")) {
-		t.Fatalf("expected first event date in the heatmap, got: %s", html)
+	if !strings.Contains(html, "l-2") {
+		t.Fatal("expected a cell with medium intensity (2)")
+		return
+	}
+
+	if !strings.Contains(html, ": 3") && !strings.Contains(html, ": 5") {
+		t.Fatal("expected tracked event quantities in the heatmap")
 		return
 	}
 
