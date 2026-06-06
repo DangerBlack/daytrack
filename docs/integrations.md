@@ -131,6 +131,26 @@ severity:
   red: 8
 ```
 
+### Embedded heatmap (Lovelace iframe)
+
+Embed a live GitHub-style activity heatmap directly in your dashboard:
+
+```yaml
+type: iframe
+url: "https://daytrack.example.com/v1/events/your_username/coffee?key=YOUR_API_KEY&format=html"
+aspect_ratio: 75%
+```
+
+For public tracks, no API key needed:
+
+```yaml
+type: iframe
+url: "https://daytrack.example.com/v1/events/your_username/public_track?format=html"
+aspect_ratio: 75%
+```
+
+The heatmap shows 20 weeks of activity with quantity-based color intensity. Works great on mobile too.
+
 ### Public tracks (no API key needed)
 
 If you set a track's visibility to `public_rw` (public read+write), you can omit the API key:
