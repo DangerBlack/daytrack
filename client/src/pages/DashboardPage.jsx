@@ -212,7 +212,7 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle, token 
     setDedicatedKeyLoading(false);
   }
 
-  const baseUrl = window.location.origin;
+  const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
   const keyPlaceholder = 'YOUR_API_KEY';
   const activeKey = dedicatedKey || keyPlaceholder;
   const postUrl = `${baseUrl}/v1/events/${user?.username}/${track.name}?key=${activeKey}&quantity=1`;
@@ -320,7 +320,7 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle, token 
             </p>
 
             <div className="integrate-key-section">
-              <label>API Key</label>
+              <div className="integrate-label">API Key</div>
               <div className="integrate-key-row">
                 {dedicatedKey ? (
                   <>
@@ -343,7 +343,7 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle, token 
 
             <div className="integrate-curl-group">
               <div>
-                <label>Track an event (POST)</label>
+                <div className="integrate-label">Track an event (POST)</div>
                 <div className="integrate-curl-row">
                   <pre className="integrate-curl">{`curl -X POST "${postUrl}"`}</pre>
                   <button className="btn btn-sm btn-primary" onClick={() => copyText(`curl -X POST "${postUrl}"`)}>
@@ -352,7 +352,7 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle, token 
                 </div>
               </div>
               <div>
-                <label>List events (GET)</label>
+                <div className="integrate-label">List events (GET)</div>
                 <div className="integrate-curl-row">
                   <pre className="integrate-curl">{`curl "${getUrl}"`}</pre>
                   <button className="btn btn-sm btn-primary" onClick={() => copyText(`curl "${getUrl}"`)}>

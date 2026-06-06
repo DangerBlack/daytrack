@@ -102,7 +102,7 @@ func (d *Database) DeleteAPIKey(userID int64, keyID int64) error {
 }
 
 func (d *Database) DeleteOldWebClientKeys(userID int64, olderThan time.Duration) error {
-	cutoff := time.Now().Add(-olderThan)
+	cutoff := time.Now().UTC().Add(-olderThan)
 	_, err := d.db.Exec(`
 		UPDATE api_keys
 		SET delete_at = CURRENT_TIMESTAMP

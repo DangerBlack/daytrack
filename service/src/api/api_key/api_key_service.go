@@ -26,7 +26,9 @@ func New(db *database.Database, configuration models.Configuration) *Service {
 
 func (s *Service) CreateApiKey(userID int64, name string) (*models.ApiKey, error) {
 	if name == "web-client" {
-		_ = s.db.DeleteOldWebClientKeys(userID, s.configuration.JWT.AccessTokenDuration)
+		if err := s.db.DeleteOldWebClientKeys(userID, s.configuration.JWT.AccessTokenDuration); err != nil {
+			s.logger(nil).Err(err).Msg("failed to cleanup old web-client keys")
+		}
 	}
 
 	id, key, err := s.db.InsertAPIKey(userID, name)

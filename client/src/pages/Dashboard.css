@@ -383,7 +383,7 @@
   margin: 1rem 0;
 }
 
-.integrate-key-section label {
+.integrate-label {
   display: block;
   font-size: 0.8rem;
   color: var(--text-muted);
@@ -435,7 +435,7 @@
   margin-top: 1rem;
 }
 
-.integrate-curl-group label {
+.integrate-label {
   display: block;
   font-size: 0.8rem;
   color: var(--text-muted);
