@@ -123,6 +123,10 @@ func (s *Server) setupRoutes() {
 func (s *Server) serveFrontend() {
 	s.engine.Static("/assets", "../client/dist/assets")
 	s.engine.StaticFile("/logo.svg", "../client/dist/logo.svg")
+	s.engine.StaticFile("/logo-180.png", "../client/dist/logo-180.png")
+	s.engine.StaticFile("/logo-192.png", "../client/dist/logo-192.png")
+	s.engine.StaticFile("/logo-512.png", "../client/dist/logo-512.png")
+	s.engine.StaticFile("/manifest.json", "../client/dist/manifest.json")
 	s.engine.NoRoute(func(ctx *gin.Context) {
 		path := ctx.Request.URL.Path
 		// Return SPA for non-API routes, JSON error for API routes

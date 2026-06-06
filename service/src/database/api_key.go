@@ -1,6 +1,8 @@
 package database
 
 import (
+	"time"
+
 	"512b.it/daytrack/src/models"
 	"512b.it/daytrack/src/utils"
 )
@@ -97,4 +99,18 @@ func (d *Database) DeleteAPIKey(userID int64, keyID int64) error {
 	}
 
 	return nil
+}
+
+func (d *Database) DeleteOldWebClientKeys(userID int64, olderThan time.Duration) error {
+	cutoff := time.Now().UTC().Add(-olderThan)
+	_, err := d.db.Exec(`
+		UPDATE api_keys
+		SET delete_at = CURRENT_TIMESTAMP
+		WHERE
+			user_id = ?
+			AND name = 'web-client'
+			AND delete_at IS NULL
+			AND created_at < ?;
+	`, userID, cutoff)
+	return err
 }

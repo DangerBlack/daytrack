@@ -121,6 +121,7 @@ export default function DashboardPage() {
             onDelete={() => deleteMutation.mutate(track.name)}
             isExpanded={expandedTrack?.id === track.id}
             onToggle={() => setExpandedTrack(expandedTrack?.id === track.id ? null : track)}
+            token={token}
           />
         ))}
       </div>
@@ -128,12 +129,16 @@ export default function DashboardPage() {
   );
 }
 
-function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
+function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle, token }) {
   const [quantity, setQuantity] = useState(1);
   const [eventDate, setEventDate] = useState(() => new Date().toISOString().slice(0, 16));
   const [eventLoading, setEventLoading] = useState(false);
   const [quickLoading, setQuickLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [integrateOpen, setIntegrateOpen] = useState(false);
+  const [dedicatedKey, setDedicatedKey] = useState(null);
+  const [dedicatedKeyLoading, setDedicatedKeyLoading] = useState(false);
+  const [copiedCurl, setCopiedCurl] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: eventsData } = useQuery({
@@ -189,6 +194,36 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
     } finally {
       setQuickLoading(false);
     }
+  }
+
+  function openIntegrate() {
+    setDedicatedKey(null);
+    setCopiedCurl(null);
+    setIntegrateOpen(true);
+  }
+
+  async function createDedicatedKey() {
+    setDedicatedKeyLoading(true);
+    try {
+      const suffix = Math.random().toString(36).slice(2, 8);
+      const key = await createApiKey(`track-${track.name}-${suffix}`, token);
+      setDedicatedKey(key.key);
+    } catch {}
+    setDedicatedKeyLoading(false);
+  }
+
+  const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
+  const keyPlaceholder = 'YOUR_API_KEY';
+  const activeKey = dedicatedKey || keyPlaceholder;
+  const postUrl = `${baseUrl}/v1/events/${user?.username}/${track.name}?key=${activeKey}&quantity=1`;
+  const getUrl = `${baseUrl}/v1/events/${user?.username}/${track.name}?key=${activeKey}&list_by=day`;
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedCurl(text);
+      setTimeout(() => setCopiedCurl(null), 2000);
+    } catch {}
   }
 
   return (
@@ -261,13 +296,76 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle }) {
             {rawEvents.slice(0, 20).map((ev, i) => (
               <div key={i} className="event-row">
                 <span className="event-date">{new Date(ev.date).toLocaleString()}</span>
-                <span className="event-qty">+{ev.quantity}</span>
+                <span className={`event-qty${ev.quantity < 0 ? ' negative' : ''}`}>{ev.quantity > 0 ? '+' : ''}{ev.quantity}</span>
               </div>
             ))}
           </div>
-          <button onClick={() => setDeleteConfirm(true)} className="btn btn-danger btn-sm" style={{ marginTop: '0.5rem' }}>
-            Delete track
-          </button>
+          <div className="track-footer-actions">
+            <button onClick={openIntegrate} className="btn btn-sm">
+              Integrate
+            </button>
+            <button onClick={() => setDeleteConfirm(true)} className="btn btn-danger btn-sm">
+              Delete track
+            </button>
+          </div>
+        </div>
+      )}
+
+      {integrateOpen && (
+        <div className="modal-overlay" onClick={() => setIntegrateOpen(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3>Integrate: {track.name}</h3>
+            <p className="usage-subtitle">
+              Use these curl commands to track or list events from external tools.
+            </p>
+
+            <div className="integrate-key-section">
+              <div className="integrate-label">API Key</div>
+              <div className="integrate-key-row">
+                {dedicatedKey ? (
+                  <>
+                    <code className="integrate-key">{dedicatedKey}</code>
+                    <button className="btn btn-sm" onClick={() => copyText(dedicatedKey)}>
+                      {copiedCurl === dedicatedKey ? 'Copied!' : 'Copy'}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <code className="integrate-key-placeholder">{keyPlaceholder}</code>
+                    <button className="btn btn-sm btn-primary" onClick={createDedicatedKey} disabled={dedicatedKeyLoading}>
+                      {dedicatedKeyLoading ? 'Creating...' : 'Generate key'}
+                    </button>
+                  </>
+                )}
+              </div>
+              {dedicatedKey && <small className="integrate-note">You can revoke this key from the API Keys page.</small>}
+            </div>
+
+            <div className="integrate-curl-group">
+              <div>
+                <div className="integrate-label">Track an event (POST)</div>
+                <div className="integrate-curl-row">
+                  <pre className="integrate-curl">{`curl -X POST "${postUrl}"`}</pre>
+                  <button className="btn btn-sm btn-primary" onClick={() => copyText(`curl -X POST "${postUrl}"`)}>
+                    {copiedCurl === `curl -X POST "${postUrl}"` ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <div className="integrate-label">List events (GET)</div>
+                <div className="integrate-curl-row">
+                  <pre className="integrate-curl">{`curl "${getUrl}"`}</pre>
+                  <button className="btn btn-sm btn-primary" onClick={() => copyText(`curl "${getUrl}"`)}>
+                    {copiedCurl === `curl "${getUrl}"` ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn" onClick={() => setIntegrateOpen(false)}>Close</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
