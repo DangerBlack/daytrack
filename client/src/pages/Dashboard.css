@@ -253,6 +253,10 @@
   color: var(--success);
 }
 
+.event-qty.negative {
+  color: var(--danger);
+}
+
 .key-value {
   font-size: 0.8rem;
   color: var(--text-muted);

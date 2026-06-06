@@ -296,7 +296,7 @@ function TrackCard({ track, apiKey, user, onDelete, isExpanded, onToggle, token 
             {rawEvents.slice(0, 20).map((ev, i) => (
               <div key={i} className="event-row">
                 <span className="event-date">{new Date(ev.date).toLocaleString()}</span>
-                <span className="event-qty">+{ev.quantity}</span>
+                <span className={`event-qty${ev.quantity < 0 ? ' negative' : ''}`}>{ev.quantity > 0 ? '+' : ''}{ev.quantity}</span>
               </div>
             ))}
           </div>
