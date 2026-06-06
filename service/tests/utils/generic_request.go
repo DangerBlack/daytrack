@@ -215,6 +215,22 @@ func WithExpectedStatusCode(status int) RequestModifier {
 	}
 }
 
+func ExtractBodyString(response *string) RequestModifier {
+	return func(opt *RequestOptions, res *http.Response) error {
+		if res == nil || response == nil {
+			return nil
+		}
+
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			return err
+		}
+
+		*response = string(body)
+		return nil
+	}
+}
+
 func ExtractGenericModel(response any) RequestModifier {
 	return func(opt *RequestOptions, res *http.Response) error {
 		var err error

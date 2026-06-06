@@ -78,3 +78,28 @@ func ListEventsWithStatus(key string, username, trackName string, listBy *models
 func ListEventsAnonymous(username, trackName string, listBy *models.ListBy) (*models.List[models.Day], error) {
 	return ListEventsWithStatus("", username, trackName, listBy, http.StatusOK)
 }
+
+func ListEventsHTML(key string, username, trackName string, listBy *models.ListBy) (string, error) {
+	var htmlBody string
+
+	url := baseURL() + fmt.Sprintf("/v1/events/%s/%s?format=html", username, trackName)
+
+	if key != "" {
+		url += fmt.Sprintf("&key=%s", key)
+	}
+
+	if listBy != nil {
+		url += fmt.Sprintf("&list_by=%s", *listBy)
+	}
+
+	if err := utils.DoRequest(
+		url,
+		utils.WithRequestMethod(http.MethodGet),
+		utils.WithExpectedStatusCode(http.StatusOK),
+		utils.ExtractBodyString(&htmlBody),
+	); err != nil {
+		return "", fmt.Errorf("failed unable to list events as html: %w", err)
+	}
+
+	return htmlBody, nil
+}
