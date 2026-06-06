@@ -75,6 +75,7 @@ func (c *EventController) injectAuthenticatedRoutes() {}
 // @Description Create an event for the authenticated user
 // @Param username path string true "Username"
 // @Param track_name path string true "Track name"
+// @Param key query string false "API Key"
 // @Param created_at query string false "Created at"
 // @Param quantity query int false "Quantity"
 // @Accept json
@@ -132,11 +133,12 @@ func (c *EventController) createEventRoute() gin.HandlerFunc {
 // @Description List all events for a track
 // @Param username path string true "Username"
 // @Param track_name path string true "Track name"
-// @Param created_at query string false "Created at"
-// @Param quantity query int false "Quantity"
+// @Param key query string false "API Key"
+// @Param after query string false "List events after RFC 3339 timestamp"
+// @Param list_by query string false "Aggregation (day, month, raw)" Enums(day, month, raw)
 // @Param format query string false "Response format (json or html)" Enums(json, html)
 // @Accept json
-// @Produce json, html
+// @Produce json
 // @Success 200 {object} models.List[models.Day]
 func (c *EventController) listEventRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {

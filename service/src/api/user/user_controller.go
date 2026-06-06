@@ -151,7 +151,7 @@ func (c *UserController) signupDisabledRoute() gin.HandlerFunc {
 // @Accept json
 // @Param request body  models.SignIn true "the signed challenge to enter the system"
 // @Produce json
-// @Success 201 {object} models.ResponseModel
+// @Success 200 {object} models.ResponseModel
 func (c *UserController) signinUserRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
