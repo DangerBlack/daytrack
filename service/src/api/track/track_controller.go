@@ -117,7 +117,7 @@ func (c *TrackController) createTrackRoute() gin.HandlerFunc {
 // @Description List all tracks for the authenticated user
 // @Accept json
 // @Produce json
-// @Success 201 {object} models.List[models.Track]
+// @Success 200 {object} models.List[models.Track]
 func (c *TrackController) listTracksRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
@@ -147,9 +147,10 @@ func (c *TrackController) listTracksRoute() gin.HandlerFunc {
 // @Summary  Update a track
 // @Description Update a track
 // @Accept json
+// @Param track_name path string true "Track name"
 // @Param request body models.Track true "Track object"
 // @Produce json
-// @Success 201 {object} models.ResponseModel
+// @Success 200 {object} models.ResponseModel
 func (c *TrackController) updateTracksRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
@@ -189,7 +190,7 @@ func (c *TrackController) updateTracksRoute() gin.HandlerFunc {
 // @Accept json
 // @Param track_name path string true "Track name"
 // @Produce json
-// @Success 201 {object} models.ResponseModel
+// @Success 200 {object} models.ResponseModel
 func (c *TrackController) deleteTrackRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error

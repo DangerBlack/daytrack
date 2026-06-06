@@ -1,0 +1,771 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "The purpose of this service is to properly track daily activities.",
+        "title": "dailytrack",
+        "contact": {
+            "name": "DailyTrack",
+            "email": "help@512b.it"
+        },
+        "version": "0.0.1"
+    },
+    "host": "localhost:3000",
+    "paths": {
+        "/v1/api_keys": {
+            "get": {
+                "security": [
+                    {
+                        "TokenAuth": []
+                    }
+                ],
+                "description": "List all api keys for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api_key"
+                ],
+                "summary": "List api keys",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.List-models_ApiKey"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "TokenAuth": []
+                    }
+                ],
+                "description": "Create an api key for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api_key"
+                ],
+                "summary": "Create an api key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Name of the api key",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiKey"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/api_keys/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "TokenAuth": []
+                    }
+                ],
+                "description": "Delete an api key for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api_key"
+                ],
+                "summary": "Delete an api key",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Id of the api key",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v1/events/{username}/{track_name}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "List all events for a track",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/html"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "List events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Track name",
+                        "name": "track_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "API Key",
+                        "name": "key",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "List events after RFC 3339 timestamp",
+                        "name": "after",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "day",
+                            "month",
+                            "raw"
+                        ],
+                        "type": "string",
+                        "description": "Aggregation (day, month, raw)",
+                        "name": "list_by",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "json",
+                            "html"
+                        ],
+                        "type": "string",
+                        "description": "Response format (json or html)",
+                        "name": "format",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.List-models_Day"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create an event for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "Create an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Track name",
+                        "name": "track_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "API Key",
+                        "name": "key",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created at",
+                        "name": "created_at",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Quantity",
+                        "name": "quantity",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tracks": {
+            "get": {
+                "security": [
+                    {
+                        "TokenAuth": []
+                    }
+                ],
+                "description": "List all tracks for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "List tracks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.List-models_Track"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "TokenAuth": []
+                    }
+                ],
+                "description": "Create a track",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "Create a track",
+                "parameters": [
+                    {
+                        "description": "Track object",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateTrack"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tracks/{track_name}": {
+            "delete": {
+                "security": [
+                    {
+                        "TokenAuth": []
+                    }
+                ],
+                "description": "Delete a track",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "Delete a track",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Track name",
+                        "name": "track_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseModel"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "TokenAuth": []
+                    }
+                ],
+                "description": "Update a track",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "Update a track",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Track name",
+                        "name": "track_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Track object",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Track"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/challenge": {
+            "get": {
+                "description": "Create a user challenge given an email address",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Create a user challenge",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The email address of the user",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Challenge"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/signin": {
+            "post": {
+                "description": "Sign in a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Sign in a user",
+                "parameters": [
+                    {
+                        "description": "the signed challenge to enter the system",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SignIn"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/signup": {
+            "post": {
+                "description": "Create a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Create a user",
+                "parameters": [
+                    {
+                        "description": "the user body to create",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseModel"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.ApiKey": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "delete_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "key": {
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "default"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "models.Challenge": {
+            "type": "object",
+            "properties": {
+                "challenge": {
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
+                },
+                "salt": {
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
+                }
+            }
+        },
+        "models.CreateTrack": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "delete_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "default description"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "default"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrackStatus"
+                        }
+                    ],
+                    "example": "enabled"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "visibility": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrackVisibility"
+                        }
+                    ],
+                    "example": "private"
+                }
+            }
+        },
+        "models.Day": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "models.List-models_ApiKey": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ApiKey"
+                    }
+                }
+            }
+        },
+        "models.List-models_Day": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Day"
+                    }
+                }
+            }
+        },
+        "models.List-models_Track": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Track"
+                    }
+                }
+            }
+        },
+        "models.ResponseModel": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "string",
+                    "example": "email is invalid"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "invalid"
+                }
+            }
+        },
+        "models.SignIn": {
+            "type": "object",
+            "required": [
+                "challenge",
+                "email",
+                "signed_challenge"
+            ],
+            "properties": {
+                "challenge": {
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "test@dailytrack.it"
+                },
+                "signed_challenge": {
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
+                }
+            }
+        },
+        "models.Track": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "delete_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "default description"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "default"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrackStatus"
+                        }
+                    ],
+                    "example": "enabled"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "visibility": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TrackVisibility"
+                        }
+                    ],
+                    "example": "private"
+                }
+            }
+        },
+        "models.TrackStatus": {
+            "type": "string",
+            "enum": [
+                "enabled",
+                "disabled"
+            ],
+            "x-enum-varnames": [
+                "TrackStatusEnabled",
+                "TrackStatusDisabled"
+            ]
+        },
+        "models.TrackVisibility": {
+            "type": "string",
+            "enum": [
+                "private",
+                "public_r",
+                "public_rw"
+            ],
+            "x-enum-varnames": [
+                "TrackVisibilityPrivate",
+                "TrackVisibilityPublicRead",
+                "TrackVisibilityPublicWrite"
+            ]
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "test@dailytrack.it"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "public_key": {
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
+                },
+                "salt": {
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "default"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "key",
+            "in": "query"
+        },
+        "TokenAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

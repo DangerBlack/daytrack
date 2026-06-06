@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -216,6 +217,70 @@ func TestListPublicEventsByDay(t *testing.T) {
 		t.Fatalf("expected 1 event, got %d", len(events.Items))
 		return
 	}
+}
+
+func TestListEventsHTML(t *testing.T) {
+	t.Parallel()
+
+	var err error
+	var user *client.SignedUser
+	var apiKey *models.ApiKey
+	var html string
+	trackName := "html-test"
+
+	if user, err = client.CreateUser(); err != nil {
+		t.Fatalf("unable to sign up %v", err)
+		return
+	}
+
+	if apiKey, err = client.CreateApiKey(user.Token, "test"); err != nil {
+		t.Fatalf("unable to create api key %v", err)
+		return
+	}
+
+	if err = client.CreateTrack(user.Token, trackName); err != nil {
+		t.Fatalf("unable to create track %v", err)
+		return
+	}
+
+	now := time.Now()
+	t1 := now.AddDate(0, 0, -3)
+	t2 := now.AddDate(0, 0, -2)
+
+	if err = client.TrackEvent(apiKey.Key, user.Username, trackName, 3, &t1); err != nil {
+		t.Fatalf("unable to track event %v", err)
+		return
+	}
+	if err = client.TrackEvent(apiKey.Key, user.Username, trackName, 5, &t2); err != nil {
+		t.Fatalf("unable to track event %v", err)
+		return
+	}
+
+	if html, err = client.ListEventsHTML(apiKey.Key, user.Username, trackName, nil); err != nil {
+		t.Fatalf("unable to list events as html %v", err)
+		return
+	}
+
+	if !strings.Contains(html, "<!DOCTYPE html>") {
+		t.Fatal("expected HTML document")
+		return
+	}
+
+	if !strings.Contains(html, "l-4") {
+		t.Fatal("expected a cell with max intensity (4 is max)")
+		return
+	}
+
+	if !strings.Contains(html, "l-2") {
+		t.Fatal("expected a cell with medium intensity (2)")
+		return
+	}
+
+	if !strings.Contains(html, ": 3") && !strings.Contains(html, ": 5") {
+		t.Fatal("expected tracked event quantities in the heatmap")
+		return
+	}
+
 }
 
 func TestUnableToListPublicEventsByDay(t *testing.T) {

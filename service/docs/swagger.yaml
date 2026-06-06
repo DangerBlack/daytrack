@@ -1,0 +1,505 @@
+definitions:
+  models.ApiKey:
+    properties:
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      delete_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      key:
+        example: a1b2c3d4e5f6g7h8i9j0
+        type: string
+      name:
+        example: default
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  models.Challenge:
+    properties:
+      challenge:
+        example: a1b2c3d4e5f6g7h8i9j0
+        type: string
+      salt:
+        example: a1b2c3d4e5f6g7h8i9j0
+        type: string
+    type: object
+  models.CreateTrack:
+    properties:
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      delete_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      description:
+        example: default description
+        type: string
+      name:
+        example: default
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.TrackStatus'
+        example: enabled
+      user_id:
+        example: 1
+        type: integer
+      visibility:
+        allOf:
+        - $ref: '#/definitions/models.TrackVisibility'
+        example: private
+    required:
+    - name
+    type: object
+  models.Day:
+    properties:
+      date:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      quantity:
+        example: 1
+        type: integer
+    type: object
+  models.List-models_ApiKey:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.ApiKey'
+        type: array
+    type: object
+  models.List-models_Day:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.Day'
+        type: array
+    type: object
+  models.List-models_Track:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.Track'
+        type: array
+    type: object
+  models.ResponseModel:
+    properties:
+      details:
+        example: email is invalid
+        type: string
+      message:
+        example: invalid
+        type: string
+    type: object
+  models.SignIn:
+    properties:
+      challenge:
+        example: a1b2c3d4e5f6g7h8i9j0
+        type: string
+      email:
+        example: test@dailytrack.it
+        type: string
+      signed_challenge:
+        example: a1b2c3d4e5f6g7h8i9j0
+        type: string
+    required:
+    - challenge
+    - email
+    - signed_challenge
+    type: object
+  models.Track:
+    properties:
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      delete_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      description:
+        example: default description
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: default
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.TrackStatus'
+        example: enabled
+      user_id:
+        example: 1
+        type: integer
+      visibility:
+        allOf:
+        - $ref: '#/definitions/models.TrackVisibility'
+        example: private
+    type: object
+  models.TrackStatus:
+    enum:
+    - enabled
+    - disabled
+    type: string
+    x-enum-varnames:
+    - TrackStatusEnabled
+    - TrackStatusDisabled
+  models.TrackVisibility:
+    enum:
+    - private
+    - public_r
+    - public_rw
+    type: string
+    x-enum-varnames:
+    - TrackVisibilityPrivate
+    - TrackVisibilityPublicRead
+    - TrackVisibilityPublicWrite
+  models.User:
+    properties:
+      email:
+        example: test@dailytrack.it
+        type: string
+      id:
+        example: 1
+        type: integer
+      public_key:
+        example: a1b2c3d4e5f6g7h8i9j0
+        type: string
+      salt:
+        example: a1b2c3d4e5f6g7h8i9j0
+        type: string
+      username:
+        example: default
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact:
+    email: help@512b.it
+    name: DailyTrack
+  description: The purpose of this service is to properly track daily activities.
+  title: dailytrack
+  version: 0.0.1
+paths:
+  /v1/api_keys:
+    get:
+      consumes:
+      - application/json
+      description: List all api keys for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.List-models_ApiKey'
+      security:
+      - TokenAuth: []
+      summary: List api keys
+      tags:
+      - api_key
+    post:
+      consumes:
+      - application/json
+      description: Create an api key for the authenticated user
+      parameters:
+      - default: default
+        description: Name of the api key
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ApiKey'
+      security:
+      - TokenAuth: []
+      summary: Create an api key
+      tags:
+      - api_key
+  /v1/api_keys/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an api key for the authenticated user
+      parameters:
+      - description: Id of the api key
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - TokenAuth: []
+      summary: Delete an api key
+      tags:
+      - api_key
+  /v1/events/{username}/{track_name}:
+    get:
+      consumes:
+      - application/json
+      description: List all events for a track
+      parameters:
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: Track name
+        in: path
+        name: track_name
+        required: true
+        type: string
+      - description: API Key
+        in: query
+        name: key
+        type: string
+      - description: List events after RFC 3339 timestamp
+        in: query
+        name: after
+        type: string
+      - description: Aggregation (day, month, raw)
+        enum:
+        - day
+        - month
+        - raw
+        in: query
+        name: list_by
+        type: string
+      - description: Response format (json or html)
+        enum:
+        - json
+        - html
+        in: query
+        name: format
+        type: string
+      produces:
+      - application/json
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.List-models_Day'
+      security:
+      - ApiKeyAuth: []
+      summary: List events
+      tags:
+      - event
+    post:
+      consumes:
+      - application/json
+      description: Create an event for the authenticated user
+      parameters:
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: Track name
+        in: path
+        name: track_name
+        required: true
+        type: string
+      - description: API Key
+        in: query
+        name: key
+        type: string
+      - description: Created at
+        in: query
+        name: created_at
+        type: string
+      - description: Quantity
+        in: query
+        name: quantity
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ResponseModel'
+      security:
+      - ApiKeyAuth: []
+      summary: Create an event
+      tags:
+      - event
+  /v1/tracks:
+    get:
+      consumes:
+      - application/json
+      description: List all tracks for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.List-models_Track'
+      security:
+      - TokenAuth: []
+      summary: List tracks
+      tags:
+      - track
+    post:
+      consumes:
+      - application/json
+      description: Create a track
+      parameters:
+      - description: Track object
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTrack'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ResponseModel'
+      security:
+      - TokenAuth: []
+      summary: Create a track
+      tags:
+      - track
+  /v1/tracks/{track_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a track
+      parameters:
+      - description: Track name
+        in: path
+        name: track_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseModel'
+      security:
+      - TokenAuth: []
+      summary: Delete a track
+      tags:
+      - track
+    patch:
+      consumes:
+      - application/json
+      description: Update a track
+      parameters:
+      - description: Track name
+        in: path
+        name: track_name
+        required: true
+        type: string
+      - description: Track object
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Track'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseModel'
+      security:
+      - TokenAuth: []
+      summary: Update a track
+      tags:
+      - track
+  /v1/users/challenge:
+    get:
+      consumes:
+      - application/json
+      description: Create a user challenge given an email address
+      parameters:
+      - description: The email address of the user
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Challenge'
+      summary: Create a user challenge
+      tags:
+      - user
+  /v1/users/signin:
+    post:
+      consumes:
+      - application/json
+      description: Sign in a user
+      parameters:
+      - description: the signed challenge to enter the system
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseModel'
+      summary: Sign in a user
+      tags:
+      - user
+  /v1/users/signup:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: the user body to create
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ResponseModel'
+      summary: Create a user
+      tags:
+      - user
+securityDefinitions:
+  ApiKeyAuth:
+    in: query
+    name: key
+    type: apiKey
+  TokenAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
