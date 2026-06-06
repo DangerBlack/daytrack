@@ -227,8 +227,8 @@ func (c *EventController) renderHeatmap(ctx *gin.Context, username, trackName st
 	if weekday == 0 {
 		weekday = 7
 	}
-	start := today.AddDate(0, 0, -20*7-weekday+1)
-	end := start.AddDate(0, 0, 20*7-1)
+	end := today.AddDate(0, 0, 7-weekday)
+	start := end.AddDate(0, 0, -20*7+1)
 
 	type cell struct {
 		date string
