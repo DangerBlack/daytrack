@@ -325,6 +325,7 @@ func (c *EventController) renderHeatmap(ctx *gin.Context, username, trackName st
 <title>%s / %s — Activity</title>
 <meta name="description" content="Activity heatmap for %s/%s">
 <meta name="robots" content="noindex">
+<link rel="icon" href="/logo.svg">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;background:#0f172a;color:#e2e8f0;padding:24px}
