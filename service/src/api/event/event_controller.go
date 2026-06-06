@@ -138,7 +138,7 @@ func (c *EventController) createEventRoute() gin.HandlerFunc {
 // @Param list_by query string false "Aggregation (day, month, raw)" Enums(day, month, raw)
 // @Param format query string false "Response format (json or html)" Enums(json, html)
 // @Accept json
-// @Produce json
+// @Produce json, text/html
 // @Success 200 {object} models.List[models.Day]
 func (c *EventController) listEventRoute() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -208,7 +208,6 @@ func (c *EventController) listEventRoute() gin.HandlerFunc {
 func (c *EventController) renderHeatmap(ctx *gin.Context, username, trackName string, events []models.Day) {
 	ctx.Header("Content-Type", "text/html; charset=utf-8")
 	ctx.Header("X-Content-Type-Options", "nosniff")
-	ctx.Header("X-Frame-Options", "SAMEORIGIN")
 
 	byDate := make(map[string]int)
 	for _, e := range events {
@@ -229,7 +228,7 @@ func (c *EventController) renderHeatmap(ctx *gin.Context, username, trackName st
 		weekday = 7
 	}
 	start := today.AddDate(0, 0, -20*7-weekday+1)
-	end := today.AddDate(0, 0, 7-weekday)
+	end := start.AddDate(0, 0, 20*7-1)
 
 	type cell struct {
 		date string

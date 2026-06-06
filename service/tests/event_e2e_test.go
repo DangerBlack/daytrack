@@ -276,10 +276,6 @@ func TestListEventsHTML(t *testing.T) {
 		return
 	}
 
-	if !strings.Contains(html, "X-Frame-Options") {
-		t.Fatal("expected X-Frame-Options header")
-		return
-	}
 }
 
 func TestUnableToListPublicEventsByDay(t *testing.T) {

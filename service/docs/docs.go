@@ -127,7 +127,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "application/json",
+                    " text/html"
                 ],
                 "tags": [
                     "event"
